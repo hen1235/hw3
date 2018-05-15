@@ -1,0 +1,31 @@
+
+
+
+
+
+
+
+
+		// Comments are ignored ;)
+
+
+
+
+
+
+
+
+
+
+
+				             
+				// Epsilon rule, so we don't report syntax error ^^
+				             return syntaxError
+
+
+
+
+
+
+
+

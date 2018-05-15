@@ -1,0 +1,138 @@
+%{
+	#include "attributes.h"
+	#include <iostream>
+	#include <stdlib.h>
+
+	using namespace std;
+	int whileFlag = 0;
+	extern int yylex();
+	extern int yylineno;
+	int yyerror(const char * message);
+%}
+
+
+
+%token ID NUM B STRING TRUE FALSE VOID INT
+%nonassoc IFX
+%nonassoc ELSE 
+%token BOOL BREAK COMMA BYTE IF RETURN SC WHILE ERROR
+%right ASSIGN 
+%left OR
+%left AND
+%left EQ NEQ
+%nonassoc LT GT LTE GTE
+%left ADD SUB
+%left DIV MUL
+%right NOT
+%left LBRACE RBRACE
+%left LBRACK RBRACK LPAREN RPAREN 
+
+
+%%
+
+Program	:	Funcs
+		;
+
+Funcs	: /* epsilon */
+		| FuncDecl Funcs
+		;
+
+FuncDecl	:  RetType ID LPAREN Formals RPAREN LBRACE Statments RBRACE 
+			;
+
+RetType	: Type
+		| VOID
+		;
+
+Formals	: /* epsilon */
+		| FormalsList
+		;
+
+FormalsList	: FormalDecl
+			| FormalDecl COMMA FormalsList
+			;
+
+FormalDecl	: Type ID
+			| Type ID LBRACK NUM RBRACK
+			| Type ID LBRACK NUM B RBRACK
+			;
+
+Statments	: Statement
+			| Statments Statement
+			;
+
+Statement 	: LBRACE Statments RBRACE
+			| Type ID SC
+			| Type ID ASSIGN Exp SC
+			| Type ID LBRACK NUM RBRACK SC
+			| Type ID LBRACK NUM B RBRACK SC
+			| ID ASSIGN Exp SC
+			| ID LBRACK Exp RBRACK ASSIGN Exp SC
+			| Call SC
+			| RETURN SC
+			| RETURN Exp SC
+			| IF LPAREN Exp RPAREN Statement %prec IFX
+			| IF LPAREN Exp RPAREN Statement ELSE Statement
+			| WHILE LPAREN Exp RPAREN Begin Statement End
+			| BREAK SC { if(!whileFlag){ 
+							errorUnexpectedBreak(yylineno); 
+							exit(0);
+							}
+						}
+			;
+
+Begin	: { whileFlag = 1; }
+		;
+
+End 	: { whileFlag = 0; }
+		;
+
+Call	: ID LPAREN ExpList RPAREN
+		| ID LPAREN RPAREN
+		;
+
+ExpList	: Exp
+		| Exp COMMA ExpList
+		;
+
+Type 	: INT
+		| BYTE
+		| BOOL
+		;
+
+Exp 	: LPAREN Exp RPAREN /*{ $$ = $2; }*/
+		| ID LBRACK Exp RBRACK
+		| Exp SUB Exp 
+		| Exp ADD Exp 
+		| Exp MUL Exp 
+		| Exp DIV Exp 
+		| ID /*{ exp_t exp; exp.type = ID; exp.str = $1; $$ = exp; }*/
+		| Call
+		| NUM /*{ exp_t exp; exp.type = NUM; exp.val = $1; $$ = exp; }*/
+		| NUM B
+		| STRING /* { exp_t exp; exp.type = STRING; exp.str = $1; $$ = exp; }*/
+		| TRUE
+		| FALSE
+		| NOT Exp
+		| Exp AND Exp
+		| Exp OR Exp
+		| Exp EQ Exp
+		| Exp NEQ Exp
+		| Exp LT Exp
+		| Exp GT Exp
+		| Exp LTE Exp
+		| Exp GTE Exp
+		;
+
+%%
+
+int main()
+{
+	yyparse();
+}
+
+int yyerror(const char * message)
+{
+	cout<<"Parse error: "<<message<<endl;
+	exit(0);
+}

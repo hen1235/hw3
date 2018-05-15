@@ -1,0 +1,14 @@
+int f(){
+	return 3;
+}
+
+byte g(){
+	return 4 b;
+}
+
+int h(int a,int b){
+	return 7;
+}
+void main(){
+	h(h(f,g),h(f,g));
+}

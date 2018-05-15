@@ -1,0 +1,84 @@
+#!/bin/bash
+
+flex scanner.lex
+bison -d parser.ypp
+g++ -o hw3 *.c *.cpp
+
+tests_won=0
+tests_lost=0
+
+function compareFiles {
+file=$1
+#./hw3 < "Input/$file.in" >& "ExpectedResult/$file.out"
+./hw3 < "Input/$file.in" >& "ActualResult/$file.res"
+diff "ActualResult/$file.res" "ExpectedResult/$file.out"
+DIFF=$(diff "ActualResult/$file.res" "ExpectedResult/$file.out")
+if [[ "$DIFF" != "" ]]; then #If true, then test$i.res and test$i.out are different files :(
+	let tests_lost++
+	echo "You have failed in the folowing test: $file :(" 
+else
+	let tests_won++
+fi
+}
+
+function printSummary {
+if(( $tests_lost == 0 )); then
+	echo "You passed all $tests_won tests :), congratulations!!!"
+else
+	echo "You passed $tests_won tests, but failed in $tests_lost"
+fi
+}
+
+compareFiles "AnotherCheckingOfExpInIf"
+compareFiles "ArrayCannotBeEqualToItself"
+compareFiles "ArrayCannotHaveSize0"
+compareFiles "ArrayCannotHaveSize256"
+compareFiles "ArraySizeMismatch"
+compareFiles "AvengersWithoutAMain"
+compareFiles "BasicPrinting"
+compareFiles "BeingEqualToMyselfIsNotOkay"
+compareFiles "BinopAndRelop"
+compareFiles "BreakBeforeSC"
+compareFiles "ByteArrayAsIntArray"
+compareFiles "ByteIsLessThan256"
+compareFiles "CallBeforeSC"
+compareFiles "CallingAFunction"
+compareFiles "CompositionOfFunctions"
+compareFiles "DollarsAreNotWelcomeInOurFlex"
+compareFiles "EmptyFile"
+compareFiles "IfAndElseDoTheSame"
+compareFiles "IllegalBreak"
+compareFiles "IncompleteSyntaxArray"
+compareFiles "IncompleteYetArrayInvalidSize"
+compareFiles "IncompleteYetDefinedVar"
+compareFiles "LexicalBeforeNoVoidMain"
+compareFiles "LonelyIf"
+compareFiles "LonelyIfRequiresBool"
+compareFiles "MainIsALonelyWolf"
+compareFiles "MainTriangle"
+compareFiles "ManyFunctions"
+compareFiles "MethodCannotBeSetAValue"
+compareFiles "MethodRecursion"
+compareFiles "MethodWithoutRbrace"
+compareFiles "NegativeNumber"
+compareFiles "OnlyOneGladiator"
+compareFiles "ReportDefVar"
+compareFiles "ReportUndefVar"
+compareFiles "ReturnByteIsAnInt"
+compareFiles "ReturnSyntaxError"
+compareFiles "ReturnTypeNotVoidCheckBeforeSC"
+compareFiles "ReturnVoidCheckBeforeSC"
+compareFiles "SCAfterIllegalTypeMismatch"
+compareFiles "SCAgainAfterIllegalTypeMismatch"
+compareFiles "SmileForever"
+compareFiles "StringSyntaxError"
+compareFiles "UndefinedFunction"
+compareFiles "WhileBeforeRparen"
+compareFiles "WhileExpectsBool"
+compareFiles "boolMain"
+compareFiles "byteMain"
+compareFiles "intMain"
+compareFiles "mainWithParameters"
+compareFiles "t1"
+compareFiles "t2"
+printSummary
