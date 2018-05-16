@@ -6,41 +6,34 @@
 #include <string>
 #include "output.hpp"
 
-//#define YYSTYPE STYPE	
-
 using namespace std;
 using namespace output;
 
-
-
-
 typedef enum Type
 {
-	_ID,
-	_BOOLEAN,
-	_NUM,
+	_INT,
+	_BOOL,
 	_STRING,
-	_B,
+	_BYTE,
 	_VOID,
 	_NONE
 } type_t;
 
-typedef struct Exp {
+/*typedef struct Exp {
 	type_t type;
 	union {
 		int val;
 		bool b;
-		//string str;
+		string str;
 	}; 
 
 } exp_t;
+*/
+typedef union var{
+	type_t type;
+} Var;
 
-
-#define YYSTYPE type_t
-
-
-
-
+#define YYSTYPE Var
 
 
 #endif

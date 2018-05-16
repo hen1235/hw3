@@ -9,7 +9,8 @@
 	extern int yylex();
 	extern int yylineno;
 	int yyerror(const char * message);
-	type_t get_type(type_t var);
+	//type_t get_type(exp_t var);
+	void match_relop(type_t type1, type_t type2, type_t expected);
 %}
 
 
@@ -29,6 +30,8 @@
 %left LBRACE RBRACE
 %left LBRACK RBRACK LPAREN RPAREN 
 
+
+
 %%
 
 Program	:	Funcs
@@ -38,7 +41,7 @@ Funcs	: /* epsilon */
 		| FuncDecl Funcs
 		;
 
-FuncDecl	:  RetType { funcType = get_type($1); } 
+FuncDecl	:  RetType { funcType = $1.type; } 
 				ID LPAREN Formals RPAREN LBRACE Statments 
 				{ funcType = _NONE; } RBRACE
 			;
@@ -78,7 +81,7 @@ Statement 	: LBRACE Statments RBRACE
 							exit(0); 
 							}
 						}
-			| RETURN Exp SC { if(funcType != get_type($2)){ 
+			| RETURN Exp SC { if(funcType != $2.type){ 
 								errorMismatch(yylineno); 
 								exit(0); 
 								}
@@ -102,33 +105,63 @@ ExpList	: Exp
 		| Exp COMMA ExpList
 		;
 
-Type 	: INT
-		| BYTE
-		| BOOL
+Type 	: INT { $$.type = _INT; }
+		| BYTE { $$.type = _BYTE; }
+		| BOOL { $$.type = _BOOL; }
 		;
 
-Exp 	: LPAREN Exp RPAREN /*{ $$ = $2; }*/
-		| ID LBRACK Exp RBRACK
-		| Exp SUB Exp 
-		| Exp ADD Exp 
-		| Exp MUL Exp 
-		| Exp DIV Exp 
-		| ID /*{ exp_t exp; exp.type = ID; exp.str = $1; $$ = exp; }*/
-		| Call
-		| NUM /*{ exp_t exp; exp.type = NUM; exp.val = $1; $$ = exp; }*/
-		| NUM B
-		| STRING /* { exp_t exp; exp.type = STRING; exp.str = $1; $$ = exp; }*/
-		| TRUE
-		| FALSE
-		| NOT Exp
-		| Exp AND Exp
-		| Exp OR Exp
-		| Exp EQ Exp
-		| Exp NEQ Exp
-		| Exp LT Exp
-		| Exp GT Exp
-		| Exp LTE Exp
-		| Exp GTE Exp
+Exp 	: LPAREN Exp RPAREN { if($2.type != _INT){
+								errorMismatch(yylineno);
+								exit(0);
+								} 
+							$$ = $2; 
+						}
+		| ID LBRACK Exp RBRACK	// array
+		| Exp SUB Exp { if(($1.type != _INT) || ($3.type != _INT)){
+							errorMismatch(yylineno);
+							exit(0);
+							} 
+						$$.type = _INT; 
+						}
+		| Exp ADD Exp { if(($1.type != _INT) || ($3.type != _INT)){
+							errorMismatch(yylineno);
+							exit(0);
+							} 
+						$$.type = _INT; 
+						}
+		| Exp MUL Exp { if(($1.type != _INT) || ($3.type != _INT)){
+							errorMismatch(yylineno);
+							exit(0);
+							} 
+						$$.type = _INT; 
+						} 
+		| Exp DIV Exp { if(($1.type != _INT) || ($3.type != _INT)){
+							errorMismatch(yylineno);
+							exit(0);
+							} 
+						$$.type = _INT; 
+						} 
+		| ID { $$ = $1; }
+		| Call { $$ = $1; }
+		| NUM { $$.type = _INT; }
+		| NUM B { $$.type = _BYTE; }
+		| STRING  { $$.type = _STRING; }
+		| TRUE { $$.type = _BOOL;}
+		| FALSE { $$.type = _BOOL; }
+		| NOT Exp { if($2.type != _BOOL){
+						errorMismatch(yylineno);
+						exit(0);
+						} 
+					$$.type = _BOOL;
+				}
+		| Exp AND Exp { match_relop($1.type,$2.type,_BOOL); $$.type = _BOOL; }
+		| Exp OR Exp { match_relop($1.type,$2.type,_BOOL); $$.type = _BOOL; }
+		| Exp EQ Exp { match_relop($1.type,$2.type,_INT); $$.type = _BOOL; }
+		| Exp NEQ Exp { match_relop($1.type,$2.type,_INT); $$.type = _BOOL; }
+		| Exp LT Exp { match_relop($1.type,$2.type,_INT); $$.type = _BOOL; }
+		| Exp GT Exp { match_relop($1.type,$2.type,_INT); $$.type = _BOOL; }
+		| Exp LTE Exp { match_relop($1.type,$2.type,_INT); $$.type = _BOOL; }
+		| Exp GTE Exp { match_relop($1.type,$2.type,_INT); $$.type = _BOOL; }
 		;
 
 %%
@@ -144,9 +177,16 @@ int yyerror(const char * message)
 	exit(0);
 }
 
-type_t get_type(type_t var){
+/*type_t get_type(type_t var){
 
 
 
 	return _VOID;
+}*/
+
+void match_relop(type_t type1, type_t type2, type_t expected){
+	if((type1 != expected) || (type2 != expected)){
+		errorMismatch(yylineno);
+		exit(0);
+	}
 }
