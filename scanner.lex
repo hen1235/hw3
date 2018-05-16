@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "parser.tab.hpp"
 #include "attributes.h"
+#include "parser.tab.hpp"
 
 void showToken(const char* name);
 

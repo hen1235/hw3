@@ -11,6 +11,9 @@
 using namespace std;
 using namespace output;
 
+
+
+
 typedef enum Type
 {
 	_ID,
@@ -18,7 +21,8 @@ typedef enum Type
 	_NUM,
 	_STRING,
 	_B,
-	_VOID
+	_VOID,
+	_NONE
 } type_t;
 
 typedef struct Exp {
@@ -32,7 +36,7 @@ typedef struct Exp {
 } exp_t;
 
 
-
+#define YYSTYPE type_t
 
 
 

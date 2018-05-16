@@ -5,9 +5,11 @@
 
 	using namespace std;
 	int whileFlag = 0;
+	type_t funcType = _NONE;
 	extern int yylex();
 	extern int yylineno;
 	int yyerror(const char * message);
+	type_t get_type(type_t var);
 %}
 
 
@@ -27,7 +29,6 @@
 %left LBRACE RBRACE
 %left LBRACK RBRACK LPAREN RPAREN 
 
-
 %%
 
 Program	:	Funcs
@@ -37,8 +38,11 @@ Funcs	: /* epsilon */
 		| FuncDecl Funcs
 		;
 
-FuncDecl	:  RetType ID LPAREN Formals RPAREN LBRACE Statments RBRACE 
+FuncDecl	:  RetType { funcType = get_type($1); } 
+				ID LPAREN Formals RPAREN LBRACE Statments 
+				{ funcType = _NONE; } RBRACE
 			;
+
 
 RetType	: Type
 		| VOID
@@ -69,23 +73,26 @@ Statement 	: LBRACE Statments RBRACE
 			| ID ASSIGN Exp SC
 			| ID LBRACK Exp RBRACK ASSIGN Exp SC
 			| Call SC
-			| RETURN SC
-			| RETURN Exp SC
+			| RETURN SC { if(funcType != _VOID){ 
+							errorMismatch(yylineno); 
+							exit(0); 
+							}
+						}
+			| RETURN Exp SC { if(funcType != get_type($2)){ 
+								errorMismatch(yylineno); 
+								exit(0); 
+								}
+							}
 			| IF LPAREN Exp RPAREN Statement %prec IFX
 			| IF LPAREN Exp RPAREN Statement ELSE Statement
-			| WHILE LPAREN Exp RPAREN Begin Statement End
+			| WHILE LPAREN Exp RPAREN 
+				{ whileFlag = 1; } Statement { whileFlag = 0; }
 			| BREAK SC { if(!whileFlag){ 
 							errorUnexpectedBreak(yylineno); 
 							exit(0);
 							}
 						}
 			;
-
-Begin	: { whileFlag = 1; }
-		;
-
-End 	: { whileFlag = 0; }
-		;
 
 Call	: ID LPAREN ExpList RPAREN
 		| ID LPAREN RPAREN
@@ -135,4 +142,11 @@ int yyerror(const char * message)
 {
 	cout<<"Parse error: "<<message<<endl;
 	exit(0);
+}
+
+type_t get_type(type_t var){
+
+
+
+	return _VOID;
 }
