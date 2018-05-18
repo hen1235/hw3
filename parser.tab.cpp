@@ -74,10 +74,9 @@
 	extern int yylex();
 	extern int yylineno;
 	int yyerror(const char * message);
-	//type_t get_type(exp_t var);
-	void match_relop(type_t type1, type_t type2, type_t expected);
+	void match_operands(type_t type1, type_t type2, bool flag);
 
-#line 81 "parser.tab.cpp" /* yacc.c:339  */
+#line 80 "parser.tab.cpp" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -170,7 +169,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 174 "parser.tab.cpp" /* yacc.c:358  */
+#line 173 "parser.tab.cpp" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -471,13 +470,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    37,    37,    40,    41,    44,    46,    44,    50,    51,
-      54,    55,    58,    59,    62,    63,    64,    67,    68,    71,
-      72,    73,    74,    75,    76,    77,    78,    79,    84,    89,
-      90,    92,    91,    93,   100,   101,   104,   105,   108,   109,
-     110,   113,   119,   120,   126,   132,   138,   144,   145,   146,
-     147,   148,   149,   150,   151,   157,   158,   159,   160,   161,
-     162,   163,   164
+       0,    36,    36,    39,    40,    43,    45,    43,    49,    50,
+      53,    54,    57,    58,    61,    62,    63,    66,    67,    70,
+      71,    72,    73,    74,    75,    76,    77,    78,    83,    88,
+      89,    91,    90,    92,    99,   100,   103,   104,   107,   108,
+     109,   112,   118,   119,   120,   121,   122,   123,   124,   125,
+     126,   127,   128,   129,   130,   136,   137,   138,   139,   140,
+     141,   142,   143
 };
 #endif
 
@@ -1371,235 +1370,227 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-#line 44 "parser.ypp" /* yacc.c:1646  */
+#line 43 "parser.ypp" /* yacc.c:1646  */
     { funcType = (yyvsp[0]).type; }
-#line 1377 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1376 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 46 "parser.ypp" /* yacc.c:1646  */
+#line 45 "parser.ypp" /* yacc.c:1646  */
     { funcType = _NONE; }
-#line 1383 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1382 "parser.tab.cpp" /* yacc.c:1646  */
+    break;
+
+  case 20:
+#line 71 "parser.ypp" /* yacc.c:1646  */
+    { }
+#line 1388 "parser.tab.cpp" /* yacc.c:1646  */
+    break;
+
+  case 24:
+#line 75 "parser.ypp" /* yacc.c:1646  */
+    { }
+#line 1394 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 79 "parser.ypp" /* yacc.c:1646  */
+#line 78 "parser.ypp" /* yacc.c:1646  */
     { if(funcType != _VOID){ 
 							errorMismatch(yylineno); 
 							exit(0); 
 							}
 						}
-#line 1393 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1404 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 84 "parser.ypp" /* yacc.c:1646  */
+#line 83 "parser.ypp" /* yacc.c:1646  */
     { if(funcType != (yyvsp[-1]).type){ 
 								errorMismatch(yylineno); 
 								exit(0); 
 								}
 							}
-#line 1403 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1414 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 92 "parser.ypp" /* yacc.c:1646  */
+#line 91 "parser.ypp" /* yacc.c:1646  */
     { whileFlag = 1; }
-#line 1409 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1420 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 92 "parser.ypp" /* yacc.c:1646  */
+#line 91 "parser.ypp" /* yacc.c:1646  */
     { whileFlag = 0; }
-#line 1415 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1426 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 93 "parser.ypp" /* yacc.c:1646  */
+#line 92 "parser.ypp" /* yacc.c:1646  */
     { if(!whileFlag){ 
 							errorUnexpectedBreak(yylineno); 
 							exit(0);
 							}
 						}
-#line 1425 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1436 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 108 "parser.ypp" /* yacc.c:1646  */
+#line 107 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _INT; }
-#line 1431 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1442 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 109 "parser.ypp" /* yacc.c:1646  */
+#line 108 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BYTE; }
-#line 1437 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1448 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 110 "parser.ypp" /* yacc.c:1646  */
+#line 109 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BOOL; }
-#line 1443 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1454 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 113 "parser.ypp" /* yacc.c:1646  */
+#line 112 "parser.ypp" /* yacc.c:1646  */
     { if((yyvsp[-1]).type != _INT){
 								errorMismatch(yylineno);
 								exit(0);
 								} 
 							(yyval) = (yyvsp[-1]); 
 						}
-#line 1454 "parser.tab.cpp" /* yacc.c:1646  */
-    break;
-
-  case 43:
-#line 120 "parser.ypp" /* yacc.c:1646  */
-    { if(((yyvsp[-2]).type != _INT) || ((yyvsp[0]).type != _INT)){
-							errorMismatch(yylineno);
-							exit(0);
-							} 
-						(yyval).type = _INT; 
-						}
 #line 1465 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
+  case 43:
+#line 119 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _INT; }
+#line 1471 "parser.tab.cpp" /* yacc.c:1646  */
+    break;
+
   case 44:
-#line 126 "parser.ypp" /* yacc.c:1646  */
-    { if(((yyvsp[-2]).type != _INT) || ((yyvsp[0]).type != _INT)){
-							errorMismatch(yylineno);
-							exit(0);
-							} 
-						(yyval).type = _INT; 
-						}
-#line 1476 "parser.tab.cpp" /* yacc.c:1646  */
+#line 120 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _INT; }
+#line 1477 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 132 "parser.ypp" /* yacc.c:1646  */
-    { if(((yyvsp[-2]).type != _INT) || ((yyvsp[0]).type != _INT)){
-							errorMismatch(yylineno);
-							exit(0);
-							} 
-						(yyval).type = _INT; 
-						}
-#line 1487 "parser.tab.cpp" /* yacc.c:1646  */
+#line 121 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _INT; }
+#line 1483 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 138 "parser.ypp" /* yacc.c:1646  */
-    { if(((yyvsp[-2]).type != _INT) || ((yyvsp[0]).type != _INT)){
-							errorMismatch(yylineno);
-							exit(0);
-							} 
-						(yyval).type = _INT; 
-						}
-#line 1498 "parser.tab.cpp" /* yacc.c:1646  */
+#line 122 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _INT; }
+#line 1489 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 144 "parser.ypp" /* yacc.c:1646  */
+#line 123 "parser.ypp" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]); }
-#line 1504 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1495 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 145 "parser.ypp" /* yacc.c:1646  */
+#line 124 "parser.ypp" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]); }
-#line 1510 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1501 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 146 "parser.ypp" /* yacc.c:1646  */
+#line 125 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _INT; }
-#line 1516 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1507 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 147 "parser.ypp" /* yacc.c:1646  */
+#line 126 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BYTE; }
-#line 1522 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1513 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 148 "parser.ypp" /* yacc.c:1646  */
+#line 127 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _STRING; }
-#line 1528 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1519 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 149 "parser.ypp" /* yacc.c:1646  */
+#line 128 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BOOL;}
-#line 1534 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1525 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 150 "parser.ypp" /* yacc.c:1646  */
+#line 129 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BOOL; }
-#line 1540 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1531 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 151 "parser.ypp" /* yacc.c:1646  */
+#line 130 "parser.ypp" /* yacc.c:1646  */
     { if((yyvsp[0]).type != _BOOL){
 						errorMismatch(yylineno);
 						exit(0);
 						} 
 					(yyval).type = _BOOL;
 				}
-#line 1551 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1542 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 157 "parser.ypp" /* yacc.c:1646  */
-    { match_relop((yyvsp[-2]).type,(yyvsp[-1]).type,_BOOL); (yyval).type = _BOOL; }
-#line 1557 "parser.tab.cpp" /* yacc.c:1646  */
+#line 136 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[-1]).type,false); (yyval).type = _BOOL; }
+#line 1548 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 158 "parser.ypp" /* yacc.c:1646  */
-    { match_relop((yyvsp[-2]).type,(yyvsp[-1]).type,_BOOL); (yyval).type = _BOOL; }
-#line 1563 "parser.tab.cpp" /* yacc.c:1646  */
+#line 137 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[-1]).type,false); (yyval).type = _BOOL; }
+#line 1554 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 159 "parser.ypp" /* yacc.c:1646  */
-    { match_relop((yyvsp[-2]).type,(yyvsp[-1]).type,_INT); (yyval).type = _BOOL; }
-#line 1569 "parser.tab.cpp" /* yacc.c:1646  */
+#line 138 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[-1]).type,true); (yyval).type = _BOOL; }
+#line 1560 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 160 "parser.ypp" /* yacc.c:1646  */
-    { match_relop((yyvsp[-2]).type,(yyvsp[-1]).type,_INT); (yyval).type = _BOOL; }
-#line 1575 "parser.tab.cpp" /* yacc.c:1646  */
+#line 139 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[-1]).type,true); (yyval).type = _BOOL; }
+#line 1566 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 161 "parser.ypp" /* yacc.c:1646  */
-    { match_relop((yyvsp[-2]).type,(yyvsp[-1]).type,_INT); (yyval).type = _BOOL; }
-#line 1581 "parser.tab.cpp" /* yacc.c:1646  */
+#line 140 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[-1]).type,true); (yyval).type = _BOOL; }
+#line 1572 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 162 "parser.ypp" /* yacc.c:1646  */
-    { match_relop((yyvsp[-2]).type,(yyvsp[-1]).type,_INT); (yyval).type = _BOOL; }
-#line 1587 "parser.tab.cpp" /* yacc.c:1646  */
+#line 141 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[-1]).type,true); (yyval).type = _BOOL; }
+#line 1578 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 163 "parser.ypp" /* yacc.c:1646  */
-    { match_relop((yyvsp[-2]).type,(yyvsp[-1]).type,_INT); (yyval).type = _BOOL; }
-#line 1593 "parser.tab.cpp" /* yacc.c:1646  */
+#line 142 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[-1]).type,true); (yyval).type = _BOOL; }
+#line 1584 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 164 "parser.ypp" /* yacc.c:1646  */
-    { match_relop((yyvsp[-2]).type,(yyvsp[-1]).type,_INT); (yyval).type = _BOOL; }
-#line 1599 "parser.tab.cpp" /* yacc.c:1646  */
+#line 143 "parser.ypp" /* yacc.c:1646  */
+    { match_operands((yyvsp[-2]).type,(yyvsp[-1]).type,true); (yyval).type = _BOOL; }
+#line 1590 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
 
-#line 1603 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1594 "parser.tab.cpp" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1827,7 +1818,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 167 "parser.ypp" /* yacc.c:1906  */
+#line 146 "parser.ypp" /* yacc.c:1906  */
 
 
 int main()
@@ -1848,9 +1839,18 @@ int yyerror(const char * message)
 	return _VOID;
 }*/
 
-void match_relop(type_t type1, type_t type2, type_t expected){
-	if((type1 != expected) || (type2 != expected)){
-		errorMismatch(yylineno);
-		exit(0);
+/* flag == true checks for numeric type, type == false checks for bool value */
+void match_operands(type_t type1, type_t type2, bool flag){
+	if (flag == true){
+		if((type1 != _INT && type1 != _BYTE) || (type2 != _INT && type2 != _BYTE)){
+			errorMismatch(yylineno);
+			exit(0);
+		}
+	}
+	else if (flag == false){
+		if((type1 != _BOOL) || (type2 != _BOOL)){
+			errorMismatch(yylineno);
+			exit(0);
+		}
 	}
 }

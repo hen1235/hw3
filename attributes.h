@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
+#include <stack>
 #include "output.hpp"
 
 using namespace std;
@@ -19,18 +20,9 @@ typedef enum Type
 	_NONE
 } type_t;
 
-/*typedef struct Exp {
+typedef struct var{
 	type_t type;
-	union {
-		int val;
-		bool b;
-		string str;
-	}; 
-
-} exp_t;
-*/
-typedef union var{
-	type_t type;
+	int size;
 } Var;
 
 #define YYSTYPE Var
