@@ -10,6 +10,9 @@
 	extern int yylineno;
 	int yyerror(const char * message);
 	void match_operands(type_t type1, type_t type2, bool flag);
+	stack<Tuple> tables;
+	stack<int> offsets;
+	int offset = 0;
 %}
 
 
@@ -33,7 +36,7 @@
 
 %%
 
-Program	:	Funcs
+Program	:	OPENSCOPE Funcs CLOSESCOPE
 		;
 
 Funcs	: /* epsilon */
@@ -41,8 +44,8 @@ Funcs	: /* epsilon */
 		;
 
 FuncDecl	:  RetType { funcType = $1.type; } 
-				ID LPAREN Formals RPAREN LBRACE Statments 
-				{ funcType = _NONE; } RBRACE
+				ID LPAREN Formals RPAREN LBRACE OPENSCOPE Statments 
+				{ funcType = _NONE; } CLOSESCOPE RBRACE
 			;
 
 
@@ -67,7 +70,7 @@ Statments	: Statement
 			| Statments Statement
 			;
 
-Statement 	: LBRACE Statments RBRACE
+Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			| Type ID SC { }
 			| Type ID ASSIGN Exp SC
 			| Type ID LBRACK NUM RBRACK SC
@@ -103,8 +106,8 @@ Statement 	: LBRACE Statments RBRACE
 								exit(0); 
 								}
 							}
-			| IF LPAREN Exp RPAREN Statement %prec IFX
-			| IF LPAREN Exp RPAREN Statement ELSE Statement
+			| IF LPAREN Exp RPAREN OPENSCOPE Statement CLOSESCOPE %prec IFX
+			| IF LPAREN Exp RPAREN OPENSCOPE Statement CLOSESCOPE ELSE OPENSCOPE Statement CLOSESCOPE
 			| WHILE LPAREN Exp RPAREN 
 				{ whileFlag = 1; } Statement { whileFlag = 0; }
 			| BREAK SC { if(!whileFlag){ 
@@ -160,6 +163,19 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 		| Exp GTE Exp { match_operands($1.type,$2.type,true); $$.type = _BOOL; }
 		;
 
+OPENSCOPE	: {
+				Tuple tuple;
+				tuple.parent = &(tables.top().table);
+				tables.push(tuple);
+				offsets.push(offset);
+			}
+			;
+
+CLOSESCOPE	: {
+				tables.pop();
+				offsets.pop();
+			}
+			;
 %%
 
 int main()

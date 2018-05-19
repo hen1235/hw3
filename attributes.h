@@ -10,6 +10,8 @@
 using namespace std;
 using namespace output;
 
+
+
 typedef enum Type
 {
 	_INT,
@@ -24,6 +26,17 @@ typedef struct var{
 	type_t type;
 	int size;
 } Var;
+
+typedef struct record {
+	string name;
+	type_t type;
+	int offset;
+} Record;
+
+typedef struct tuple {
+	vector<Record>* parent;
+	vector<Record> table;
+} Tuple;
 
 #define YYSTYPE Var
 
