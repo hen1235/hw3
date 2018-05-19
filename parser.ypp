@@ -12,7 +12,9 @@
 	void match_operands(type_t type1, type_t type2, bool flag);
 	stack<Tuple> tables;
 	stack<int> offsets;
-	int offset = 0;
+	vector<type_t> args;
+	bool check_variable_exist(string name);
+	bool check_func_exist(string name, vector<type_t> argList);
 %}
 
 
@@ -36,16 +38,35 @@
 
 %%
 
-Program	:	OPENSCOPE Funcs CLOSESCOPE
+Program	:	
+		{
+			Tuple tuple;
+			tuple.parent = NULL;
+			tables.push(tuple);
+			offsets.push(0);
+		} Funcs CLOSESCOPE
 		;
 
 Funcs	: /* epsilon */
 		| FuncDecl Funcs
 		;
 
-FuncDecl	:  RetType { funcType = $1.type; } 
-				ID LPAREN Formals RPAREN LBRACE OPENSCOPE Statments 
-				{ funcType = _NONE; } CLOSESCOPE RBRACE
+FuncDecl	:  RetType { funcType = $1.type; } ID 
+			{ 					
+				if(check_variable_exist($3.name)){
+					errorDef(yylineno, $3.name);
+					exit(0);
+				}	
+
+			} LPAREN Formals RPAREN LBRACE OPENSCOPE 
+			{
+				FuncRecord funcRecord($3.name, $1.type, args);
+				tables.top().table.push_back(funcRecord);
+				Tuple tuple;
+				tuple.parent = &(tables.top());
+				tables.push(tuple);
+			} Statments 
+				{ funcType = _NONE; args.clear(); } CLOSESCOPE RBRACE
 			;
 
 
@@ -61,9 +82,23 @@ FormalsList	: FormalDecl
 			| FormalDecl COMMA FormalsList
 			;
 
-FormalDecl	: Type ID
-			| Type ID LBRACK NUM RBRACK
-			| Type ID LBRACK NUM B RBRACK
+FormalDecl	: Type ID 
+			{ 
+				args.push_back($1.type); 
+				tables.top().table.push_back(Record($2.name,$1.type,offsets.top()-1)); 
+
+			}
+			| Type ID LBRACK NUM RBRACK 
+			{ 
+				args.push_back($2.type);
+				tables.top().table.push_back(Record($2.name,$2.type,offsets.top()-1)); 
+			}
+			| Type ID LBRACK NUM B RBRACK 
+			{ 
+				args.push_back($2.type);
+				tables.top().table.push_back(Record($2.name,$2.type,offsets.top()-1)); 
+
+			}
 			;
 
 Statments	: Statement
@@ -71,13 +106,58 @@ Statments	: Statement
 			;
 
 Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
-			| Type ID SC { }
-			| Type ID ASSIGN Exp SC
-			| Type ID LBRACK NUM RBRACK SC
-			| Type ID LBRACK NUM B RBRACK SC
-			| ID ASSIGN Exp SC 
+			| Type ID SC
 			{ 
-				if($1.type == _INT && ($3.type != _INT && $3.type != _BYTE )){
+				if(check_variable_exist($2.name)){
+					errorDef(yylineno, $2.name);
+					exit(0);
+				}
+				Record record($2.name, $1.type, offsets.top());
+				tables.top().table.push_back(record);
+				offsets.top()++;
+
+			}
+			| Type ID ASSIGN Exp SC
+			{ 
+				if(check_variable_exist($2.name)){
+					errorUndef(yylineno, $2.name);
+					exit(0);
+				}
+				Record record($2.name, $1.type, offsets.top());
+				tables.top().table.push_back(record);
+				offsets.top()++;
+			}
+			| Type ID LBRACK NUM RBRACK SC
+			{ 
+				if(check_variable_exist($2.name)){
+					errorDef(yylineno, $2.name);
+					exit(0);
+				}
+				$2.size = $4.size;
+				ArrRecord record($2.name, $1.type, offsets.top(), $4.size);
+				tables.top().table.push_back(record);
+				offsets.top()++;
+			}
+			| Type ID LBRACK NUM B RBRACK SC
+			{ 
+				if(check_variable_exist($2.name)){
+					errorDef(yylineno, $2.name);
+					exit(0);
+				}
+				$2.size = $4.size;
+				ArrRecord record($2.name, $1.type, offsets.top(), $4.size);
+				tables.top().table.push_back(record);
+				offsets.top()++;
+			}
+			| ID ASSIGN Exp SC 
+			{
+			 
+				if(!check_variable_exist($1.name)){
+					errorUndef(yylineno, $1.name);
+					exit(0);
+				}
+			
+				else if($1.type == _INT && ($3.type != _INT && $3.type != _BYTE )){
 					errorMismatch(yylineno); 
 					exit(0); 
 				}
@@ -95,6 +175,33 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				}
 			}
 			| ID LBRACK Exp RBRACK ASSIGN Exp SC
+			{
+				if(!check_variable_exist($1.name)){
+					errorUndef(yylineno, $1.name);
+					exit(0);
+				}
+				else if($3.type != _INT && $3.type != _BYTE){
+					errorMismatch(yylineno); 
+					exit(0); 
+				}
+				else if($1.type == _INT && ($6.type != _INT && $6.type != _BYTE )){
+					errorMismatch(yylineno); 
+					exit(0); 
+				}
+				else if($1.type == _BYTE && $6.type != _BYTE){
+					errorMismatch(yylineno); 
+					exit(0); 
+				}
+				else if($1.type == _BOOL && $6.type !=_BOOL){
+					errorMismatch(yylineno); 
+					exit(0); 
+				}
+				else if($1.type == _STRING && $6.type !=_STRING){
+					errorMismatch(yylineno); 
+					exit(0); 
+				}
+
+			}
 			| Call SC
 			| RETURN SC { if(funcType != _VOID){ 
 							errorMismatch(yylineno); 
@@ -109,7 +216,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			| IF LPAREN Exp RPAREN OPENSCOPE Statement CLOSESCOPE %prec IFX
 			| IF LPAREN Exp RPAREN OPENSCOPE Statement CLOSESCOPE ELSE OPENSCOPE Statement CLOSESCOPE
 			| WHILE LPAREN Exp RPAREN 
-				{ whileFlag = 1; } Statement { whileFlag = 0; }
+				{ whileFlag = 1; } OPENSCOPE Statement CLOSESCOPE { whileFlag = 0; }
 			| BREAK SC { if(!whileFlag){ 
 							errorUnexpectedBreak(yylineno); 
 							exit(0);
@@ -117,8 +224,15 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 						}
 			;
 
-Call	: ID LPAREN ExpList RPAREN
-		| ID LPAREN RPAREN
+Call	: ID LPAREN ExpList RPAREN 
+		| ID LPAREN RPAREN 
+		{
+			if(!check_func_exist($1.name, vector<type_t>())){
+				errorUndef(yylineno, $1.name);
+				exit(0);
+			}
+
+		}
 		;
 
 ExpList	: Exp
@@ -131,16 +245,25 @@ Type 	: INT { $$.type = _INT; }
 		;
 
 Exp 	: LPAREN Exp RPAREN { $$ = $2; }
-		| ID LBRACK Exp RBRACK	{ if($3.type != _BYTE || $3.type != _INT){
-									errorMismatch(yylineno);
-									exit(0);
-									}
-								} // array derefrence
+		| ID LBRACK Exp RBRACK	
+		{ 
+			if($3.type != _BYTE || $3.type != _INT){
+				errorMismatch(yylineno);
+				exit(0);
+				}
+		} 
 		| Exp SUB Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
 		| Exp ADD Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
 		| Exp MUL Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
 		| Exp DIV Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
-		| ID { $$ = $1; }
+		| ID 
+		{ 
+			if(!check_variable_exist($1.name)){
+				errorUndef(yylineno, $1.name);
+				exit(0);
+			}
+			$$ = $1; 
+		}
 		| Call { $$ = $1; }
 		| NUM { $$.type = _INT; }
 		| NUM B { $$.type = _BYTE; }
@@ -165,9 +288,9 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 
 OPENSCOPE	: {
 				Tuple tuple;
-				tuple.parent = &(tables.top().table);
+				tuple.parent = &(tables.top());
 				tables.push(tuple);
-				offsets.push(offset);
+				offsets.push(offsets.top());
 			}
 			;
 
@@ -205,6 +328,39 @@ void match_operands(type_t type1, type_t type2, bool flag){
 	}
 }
 
+/* return true if varialbe was declared, false if not */
+bool check_variable_exist(string name){
+	Tuple *tuple = &(tables.top());
+	vector<BaseRecord>* table;
+	while(tuple != NULL){
+		table = &(tuple->table);
+		for(vector<BaseRecord>::iterator it = table->begin(); it != table->end(); ++it){
+			if(it->name == name){
+				return true;
+			}
+		}
+		tuple = tuple->parent;
+	}
+	return false;
+}
+
+bool check_func_exist(string name, vector<type_t> argList){
+	Tuple *tuple = &(tables.top());
+	vector<BaseRecord>* table;
+	while(tuple != NULL){
+		table = &(tuple->table);
+		
+		for(vector<BaseRecord>::iterator it = table->begin(); it != table->end(); ++it){
+			dynamic_cast<FuncRecord*>(&*it);
+			//record = dynamic_cast<FuncRecord*>record;
+			if(it->name == name){
+				return true;
+			}
+		}
+		tuple = tuple->parent;
+	}
+	return false;
+}
 
 /*type_t get_type(type_t var){
 
