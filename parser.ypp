@@ -82,11 +82,14 @@ Statement 	: LBRACE Statments RBRACE
 					errorMismatch(yylineno); 
 					exit(0); 
 				}
-				else if($1.type == _BOOL && ($3.type != _INT && $3.type != _BYTE)){
+				else if($1.type == _BOOL && $3.type !=_BOOL){
 					errorMismatch(yylineno); 
 					exit(0); 
 				}
-
+				else if($1.type == _STRING && $3.type !=_STRING){
+					errorMismatch(yylineno); 
+					exit(0); 
+				}
 			}
 			| ID LBRACK Exp RBRACK ASSIGN Exp SC
 			| Call SC
@@ -124,13 +127,12 @@ Type 	: INT { $$.type = _INT; }
 		| BOOL { $$.type = _BOOL; }
 		;
 
-Exp 	: LPAREN Exp RPAREN { if($2.type != _INT){
-								errorMismatch(yylineno);
-								exit(0);
-								} 
-							$$ = $2; 
-						}
-		| ID LBRACK Exp RBRACK	// array derefrence
+Exp 	: LPAREN Exp RPAREN { $$ = $2; }
+		| ID LBRACK Exp RBRACK	{ if($3.type != _BYTE || $3.type != _INT){
+									errorMismatch(yylineno);
+									exit(0);
+									}
+								} // array derefrence
 		| Exp SUB Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
 		| Exp ADD Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
 		| Exp MUL Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
@@ -171,7 +173,7 @@ int yyerror(const char * message)
 	exit(0);
 }
 
-/* flag == true checks for numeric type, type == false checks for bool value */
+/* flag == true checks for numeric types, type == false checks for bool value */
 void match_operands(type_t type1, type_t type2, bool flag){
 	if (flag == true){
 		if((type1 != _INT && type1 != _BYTE) || (type2 != _INT && type2 != _BYTE)){
