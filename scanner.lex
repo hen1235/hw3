@@ -64,7 +64,7 @@ break							return BREAK;
 {DIV}							return DIV;
 {ADD}							return ADD;
 {SUB}							return SUB;
-{ID}							{yylval = new Var(_NONE,-1,yytext);} return ID;
+{ID}							{Var var; var.name = yytext; yylval = var;  return ID;}
 {NUM}							return NUM;
 {EQ}							return EQ;
 {NEQ}							return NEQ;

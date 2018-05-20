@@ -55,7 +55,7 @@ typedef struct arrRecord : Record {
 
 struct tuple {
 	Tuple* parent;
-	vector<BaseRecord> table;
+	vector<BaseRecord*> table;
 };
 
 #define YYSTYPE Var

@@ -1,3 +1,4 @@
 void printOk(bool isOk) {
     if (isOk) print("ok");
 }
+

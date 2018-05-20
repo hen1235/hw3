@@ -13,7 +13,7 @@
 	void match_operands(type_t type1, type_t type2, bool flag);
 	stack<Tuple> tables;
 	stack<int> offsets;
-	vector<string> args;
+	vector<string> args, params;
 	bool check_variable_exist(string name);
 	bool check_func_exist(string name, vector<string> argList);
 	vector<string> get_args(Var var);
@@ -50,7 +50,14 @@ Program	:
 			vector<string> printArgs;
 			printArgs.push_back("STRING");
 			BaseRecord* printRecord = new FuncRecord("print",_VOID,printArgs);
-			print.table.push_back(*printRecord);
+
+			print.table.push_back(printRecord);
+			FuncRecord* funcRecord = dynamic_cast<FuncRecord*>(print.table.back());
+			if(funcRecord != NULL){
+				// cout << funcRecord->args[0] << " *****\n" << endl;
+			}
+
+
 			tables.push(print);
 			offsets.push(0);
 
@@ -59,7 +66,7 @@ Program	:
 			vector<string> printiArgs;
 			printiArgs.push_back("INT");
 			BaseRecord* printiRecord = new FuncRecord("printi",_VOID,printiArgs);
-			printi.table.push_back(*printiRecord);
+			printi.table.push_back(printiRecord);
 			tables.push(printi);
 			offsets.push(0);
 
@@ -89,7 +96,7 @@ FuncDecl	:  RetType
 			{ 
 				funcType = $1.type; 
 			} 
-				ID { $3.name = yytext; } 
+				ID
 			{ 					
 				if(check_variable_exist($3.name)){
 					errorDef(yylineno, $3.name);
@@ -97,17 +104,24 @@ FuncDecl	:  RetType
 				}
 				$3.type = $1.type;	
 
-			} LPAREN Formals RPAREN LBRACE OPENSCOPE 
+			} LPAREN Formals RPAREN 
 			{
+				
 				BaseRecord* funcRecord = new FuncRecord($3.name, $1.type, args);
 				args.clear();
 				//cout << $3.name << " " << $1.type << " " << dynamic_cast<FuncRecord*>(funcRecord)->args[0] << endl;
-				tables.top().table.push_back(*funcRecord);
-				Tuple tuple;
-				tuple.parent = &(tables.top());
-				tables.push(tuple);
-			} Statments 
-				{ funcType = _NONE; } CLOSESCOPE RBRACE
+				tables.top().table.push_back(funcRecord);
+				// FuncRecord* tmp = dynamic_cast<FuncRecord*>((tables.top().table).back());
+				// cout << tmp->args[0] << " ******\n" << endl;
+				//cout << tables.top().table.size() << " ****\n" << endl;
+				
+				
+			}	LBRACE OPENSCOPE 
+			{
+				BaseRecord* record =  new Record($2.name,$1.type,offsets.top()-1);
+				tables.top().table.push_back(record);
+				Record* tmp = dynamic_cast<Record*>(tables.top().table.back());
+			} Statments { funcType = _NONE; }CLOSESCOPE RBRACE
 			;
 
 
@@ -125,19 +139,24 @@ FormalsList	: FormalDecl
 
 FormalDecl	: Type ID
 			{ 
-				args.push_back(types[$1.type]); 
-				tables.top().table.push_back(Record($2.name,$1.type,offsets.top()-1)); 
-
+				// cout << "here\n" << endl;
+				args.push_back(types[$1.type]);
+				
+				// cout << "size = " << tables.top().table.size() << "\n" << endl;
+				// cout << tmp->name << " " << tmp->offset << "\n" << endl;
+				// cout << tables.top().table.size() << " ****\n" << endl;
 			}
 			| Type ID LBRACK NUM RBRACK 
 			{ 
 				args.push_back(types[$2.type]);
-				tables.top().table.push_back(Record($2.name,$2.type,offsets.top()-1)); 
+				BaseRecord* record =  new Record($2.name,$2.type,offsets.top()-1);
+				tables.top().table.push_back(record); 
 			}
 			| Type ID LBRACK NUM B RBRACK 
 			{ 
 				args.push_back(types[$2.type]);
-				tables.top().table.push_back(Record($2.name,$2.type,offsets.top()-1)); 
+				BaseRecord* record =  new Record($2.name,$2.type,offsets.top()-1);
+				tables.top().table.push_back(record); 
 
 			}
 			;
@@ -155,7 +174,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				}
 				$2.type = $1.type;
 				$2.size = -1;
-				Record record($2.name, $1.type, offsets.top());
+				BaseRecord* record = new Record($2.name, $1.type, offsets.top());
 				tables.top().table.push_back(record);
 				offsets.top()++;
 
@@ -168,7 +187,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				}
 				$2.type = $1.type;
 				$2.size = -1;
-				Record record($2.name, $1.type, offsets.top());
+				BaseRecord* record = new Record($2.name, $1.type, offsets.top());
 				tables.top().table.push_back(record);
 				offsets.top()++;
 			}
@@ -180,7 +199,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				}
 				$2.type = $1.type;
 				$2.size = $4.size;
-				ArrRecord record($2.name, $1.type, offsets.top(), $4.size);
+				BaseRecord* record = new ArrRecord($2.name, $1.type, offsets.top(), $4.size);
 				tables.top().table.push_back(record);
 				offsets.top()++;
 			}
@@ -192,7 +211,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				}
 				$2.type = $1.type;
 				$2.size = $4.size;
-				ArrRecord record($2.name, $1.type, offsets.top(), $4.size);
+				BaseRecord* record = new ArrRecord($2.name, $1.type, offsets.top(), $4.size);
 				tables.top().table.push_back(record);
 				offsets.top()++;
 			}
@@ -273,7 +292,9 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 
 Call	: ID LPAREN ExpList RPAREN
  		{
- 			vector<string> argList = get_args($3);
+ 			vector<string> argList = params;
+ 			params.clear();
+ 			// cout << $1.name << " " << argList[0] << "\n" << endl;
 			if(!check_func_exist($1.name, argList)){
 				errorUndef(yylineno, $1.name);
 				exit(0);
@@ -292,8 +313,8 @@ Call	: ID LPAREN ExpList RPAREN
 		}
 		;
 
-ExpList	: Exp
-		| Exp COMMA ExpList
+ExpList	: Exp { params.push_back(types[$1.type]); }
+		| Exp COMMA ExpList { params.push_back(types[$1.type]); }
 		;
 
 Type 	: INT { $$.type = _INT; }
@@ -313,7 +334,7 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 		| Exp ADD Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
 		| Exp MUL Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
 		| Exp DIV Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
-		| ID 
+		| ID { $$ = $1; }
 		{ 
 			if(!check_variable_exist($1.name)){
 				errorUndef(yylineno, $1.name);
@@ -353,24 +374,33 @@ OPENSCOPE	: {
 
 CLOSESCOPE	: {
 				endScope();
+				// cout << "ok0\n" << endl;
 				Tuple* tuple = &(tables.top());
-				vector<BaseRecord>* table = &(tuple->table);
+				vector<BaseRecord*>* table = &(tuple->table);
+				//cout << tables.top().table.size() << " ****\n" << endl;
 				Record* record;
 				ArrRecord* arrRecord;
 				FuncRecord* funcRecord;
-				for(vector<BaseRecord>::iterator it = table->begin(); it != table->end(); ++it){
-					arrRecord = dynamic_cast<ArrRecord*>(&(*it));
-					if(arrRecord != NULL){ // record of array
-						printID(arrRecord->name,arrRecord->offset,makeArrayType(types[arrRecord->type],arrRecord->size));
-					}
-					record = dynamic_cast<Record*>(&(*it));
+				for(vector<BaseRecord*>::iterator it = table->begin(); it != table->end(); ++it){
+					// cout << it->name << " ****\n" << endl;
+					record = dynamic_cast<Record*>(*it);
 					if(record != NULL){ // record of variable
+						cout << "ok1\n" << endl;
 						printID(record->name, record->offset, types[record->type]);
 					}
-					funcRecord = dynamic_cast<FuncRecord*>(&(*it));
+
+					arrRecord = dynamic_cast<ArrRecord*>(*it);
+					if(arrRecord != NULL){ // record of array
+						cout << "ok\n" << endl;
+						printID(arrRecord->name,arrRecord->offset,makeArrayType(types[arrRecord->type],arrRecord->size));
+					}
+
+					funcRecord = dynamic_cast<FuncRecord*>(*it);
 					if(funcRecord == NULL){ // record of function
+						cout << "ok2\n" << endl;
 						printID(funcRecord->name, 0, makeFunctionType(types[funcRecord->type],funcRecord->args));
 					}
+					cout << "ok3\n" << endl;
 				}
 				tables.pop();
 				offsets.pop();
@@ -408,11 +438,16 @@ void match_operands(type_t type1, type_t type2, bool flag){
 /* return true if varialbe was declared, false if not */
 bool check_variable_exist(string name){
 	Tuple *tuple = &(tables.top());
-	vector<BaseRecord>* table;
+	vector<BaseRecord*>* table;
+	Record* record;
 	while(tuple != NULL){
 		table = &(tuple->table);
-		for(vector<BaseRecord>::iterator it = table->begin(); it != table->end(); ++it){
-			if(it->name == name){
+		for(vector<BaseRecord*>::iterator it = table->begin(); it != table->end(); ++it){
+			record = dynamic_cast<Record*>(*it);
+			if(record == NULL){
+				continue;
+			}
+			if(record->name == name){
 				return true;
 			}
 		}
@@ -422,21 +457,21 @@ bool check_variable_exist(string name){
 }
 
 bool check_func_exist(string name, vector<string> argList){
-	cout << name << "\n" << endl;
 	Tuple *tuple = &(tables.top());
-	vector<BaseRecord>* table;
-	BaseRecord* baseRecord;
+	vector<BaseRecord*>* table;
 	FuncRecord* funcRecord;
+	BaseRecord* baseRecord;
 	while(tuple != NULL){
 		table = &(tuple->table);
 
-		for(vector<BaseRecord>::iterator it = table->begin(); it != table->end(); ++it){
-			funcRecord = dynamic_cast<FuncRecord*>(&(*it));
+		for(vector<BaseRecord*>::iterator it = tuple->table.begin(); it != tuple->table.end(); ++it){
+			//cout << it->name << "\n" << endl;
+			funcRecord = dynamic_cast<FuncRecord*>(*it);
 			if(funcRecord == NULL){
 				continue;
 			}
-			cout << it->name << "\n" << endl;
-			if(it->name == name && argList == funcRecord->args){
+			// cout << funcRecord->name << " /////\n" << endl;
+			if(funcRecord->name == name && argList == funcRecord->args){
 				return true;
 			}
 		}
