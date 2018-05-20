@@ -1,1 +1,1 @@
-line 6: type mismatch
+line 2: variable  is not defined

@@ -1,1 +1,2 @@
-Parse error: syntax error
+---end scope---
+line 5: identifier  is already defined

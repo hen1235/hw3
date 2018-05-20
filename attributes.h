@@ -23,7 +23,6 @@ typedef enum Type
 	_NONE
 } type_t;
 
-string types[6] = {"INT","BOOL","STRING","BYTE","VOID","NONE"};
 
 typedef struct var{
 	type_t type;

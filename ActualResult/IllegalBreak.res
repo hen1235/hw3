@@ -1,1 +1,1 @@
-line 12: unexpected break statement
+line 2: identifier  is already defined

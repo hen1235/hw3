@@ -1,1 +1,1 @@
-line 10: type mismatch
+line 2: identifier  is already defined

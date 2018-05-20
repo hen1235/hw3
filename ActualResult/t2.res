@@ -1,1 +1,2 @@
-line 7: type mismatch
+---end scope---
+line 5: identifier  is already defined
