@@ -33,6 +33,7 @@ typedef struct baseRecord {
 	string name;
 	type_t type;
 	baseRecord(string a, type_t b): name(a), type(b) {}
+	virtual ~baseRecord() {}
 } BaseRecord;
 
 typedef struct record : BaseRecord {

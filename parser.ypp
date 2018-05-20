@@ -112,6 +112,8 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					errorDef(yylineno, $2.name);
 					exit(0);
 				}
+				$2.type = $1.type;
+				$2.size = -1;
 				Record record($2.name, $1.type, offsets.top());
 				tables.top().table.push_back(record);
 				offsets.top()++;
@@ -123,6 +125,8 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					errorUndef(yylineno, $2.name);
 					exit(0);
 				}
+				$2.type = $1.type;
+				$2.size = -1;
 				Record record($2.name, $1.type, offsets.top());
 				tables.top().table.push_back(record);
 				offsets.top()++;
@@ -133,6 +137,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					errorDef(yylineno, $2.name);
 					exit(0);
 				}
+				$2.type = $1.type;
 				$2.size = $4.size;
 				ArrRecord record($2.name, $1.type, offsets.top(), $4.size);
 				tables.top().table.push_back(record);
@@ -144,6 +149,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					errorDef(yylineno, $2.name);
 					exit(0);
 				}
+				$2.type = $1.type;
 				$2.size = $4.size;
 				ArrRecord record($2.name, $1.type, offsets.top(), $4.size);
 				tables.top().table.push_back(record);
@@ -224,13 +230,22 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 						}
 			;
 
-Call	: ID LPAREN ExpList RPAREN 
+Call	: ID LPAREN ExpList RPAREN
+ 		{
+			if(!check_func_exist($1.name, vector<type_t>())){
+				errorUndef(yylineno, $1.name);
+				exit(0);
+			}
+			$$.type = $1.type;
+
+		}
 		| ID LPAREN RPAREN 
 		{
 			if(!check_func_exist($1.name, vector<type_t>())){
 				errorUndef(yylineno, $1.name);
 				exit(0);
 			}
+			$$.type = $1.type;
 
 		}
 		;
@@ -347,13 +362,19 @@ bool check_variable_exist(string name){
 bool check_func_exist(string name, vector<type_t> argList){
 	Tuple *tuple = &(tables.top());
 	vector<BaseRecord>* table;
+	BaseRecord* tmp;
+	FuncRecord* funcTmp;
 	while(tuple != NULL){
 		table = &(tuple->table);
-		
+
 		for(vector<BaseRecord>::iterator it = table->begin(); it != table->end(); ++it){
-			dynamic_cast<FuncRecord*>(&*it);
-			//record = dynamic_cast<FuncRecord*>record;
-			if(it->name == name){
+			tmp = &(*it);
+			funcTmp = dynamic_cast<FuncRecord*>(tmp);
+			if(funcTmp == NULL){
+				continue;
+			}
+
+			if(it->name == name && argList == funcTmp->args){
 				return true;
 			}
 		}
