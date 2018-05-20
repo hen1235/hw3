@@ -12,9 +12,10 @@
 	void match_operands(type_t type1, type_t type2, bool flag);
 	stack<Tuple> tables;
 	stack<int> offsets;
-	vector<type_t> args;
+	vector<string> args;
 	bool check_variable_exist(string name);
-	bool check_func_exist(string name, vector<type_t> argList);
+	bool check_func_exist(string name, vector<string> argList);
+	vector<string> get_args(Var var);
 %}
 
 
@@ -84,18 +85,18 @@ FormalsList	: FormalDecl
 
 FormalDecl	: Type ID 
 			{ 
-				args.push_back($1.type); 
+				args.push_back(types[$1.type]); 
 				tables.top().table.push_back(Record($2.name,$1.type,offsets.top()-1)); 
 
 			}
 			| Type ID LBRACK NUM RBRACK 
 			{ 
-				args.push_back($2.type);
+				args.push_back(types[$2.type]);
 				tables.top().table.push_back(Record($2.name,$2.type,offsets.top()-1)); 
 			}
 			| Type ID LBRACK NUM B RBRACK 
 			{ 
-				args.push_back($2.type);
+				args.push_back(types[$2.type]);
 				tables.top().table.push_back(Record($2.name,$2.type,offsets.top()-1)); 
 
 			}
@@ -232,7 +233,8 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 
 Call	: ID LPAREN ExpList RPAREN
  		{
-			if(!check_func_exist($1.name, vector<type_t>())){
+ 			vector<string> argList = get_args($3);
+			if(!check_func_exist($1.name, argList)){
 				errorUndef(yylineno, $1.name);
 				exit(0);
 			}
@@ -241,7 +243,7 @@ Call	: ID LPAREN ExpList RPAREN
 		}
 		| ID LPAREN RPAREN 
 		{
-			if(!check_func_exist($1.name, vector<type_t>())){
+			if(!check_func_exist($1.name, vector<string>())){
 				errorUndef(yylineno, $1.name);
 				exit(0);
 			}
@@ -310,6 +312,29 @@ OPENSCOPE	: {
 			;
 
 CLOSESCOPE	: {
+				endScope();
+				Tuple* tuple = &(tables.top());
+				vector<BaseRecord>* table = &(tuple->table);
+				Record* record;
+				ArrRecord* arrRecord;
+				FuncRecord* funcRecord;
+				for(vector<BaseRecord>::iterator it = table->begin(); it != table->end(); ++it){
+					record = dynamic_cast<Record*>(&(*it));
+					arrRecord = dynamic_cast<ArrRecord*>(&(*it));
+					funcRecord = dynamic_cast<FuncRecord*>(&(*it));
+					if(record == NULL && arrRecord == NULL && funcRecord == NULL){
+						continue;
+					}
+					else if(record == NULL && funcRecord == NULL){ // record of array
+						printID(arrRecord->name,arrRecord->offset,makeArrayType(types[arrRecord->type],arrRecord->size));
+					}
+					else if(arrRecord == NULL && funcRecord == NULL){ // record of variable
+						printID(record->name, record->offset, types[record->type]);
+					}
+					else if(record == NULL && arrRecord == NULL){ // record of function
+						printID(funcRecord->name, 0, makeFunctionType(types[funcRecord->type],funcRecord->args));
+					}
+				}
 				tables.pop();
 				offsets.pop();
 			}
@@ -359,22 +384,22 @@ bool check_variable_exist(string name){
 	return false;
 }
 
-bool check_func_exist(string name, vector<type_t> argList){
+bool check_func_exist(string name, vector<string> argList){
 	Tuple *tuple = &(tables.top());
 	vector<BaseRecord>* table;
-	BaseRecord* tmp;
-	FuncRecord* funcTmp;
+	BaseRecord* baseRecord;
+	FuncRecord* funcRecord;
 	while(tuple != NULL){
 		table = &(tuple->table);
 
 		for(vector<BaseRecord>::iterator it = table->begin(); it != table->end(); ++it){
-			tmp = &(*it);
-			funcTmp = dynamic_cast<FuncRecord*>(tmp);
-			if(funcTmp == NULL){
+			baseRecord = &(*it);
+			funcRecord = dynamic_cast<FuncRecord*>((baseRecord));
+			if(funcRecord == NULL){
 				continue;
 			}
 
-			if(it->name == name && argList == funcTmp->args){
+			if(it->name == name && argList == funcRecord->args){
 				return true;
 			}
 		}
@@ -389,3 +414,13 @@ bool check_func_exist(string name, vector<type_t> argList){
 
 	return _VOID;
 }*/
+
+vector<string> get_args(Var var){
+	vector<string> argList;
+	
+
+
+
+
+	return argList;
+}

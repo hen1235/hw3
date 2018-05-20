@@ -23,6 +23,8 @@ typedef enum Type
 	_NONE
 } type_t;
 
+string types[6] = {"INT","BOOL","STRING","BYTE","VOID","NONE"};
+
 typedef struct var{
 	type_t type;
 	int size;
@@ -42,8 +44,8 @@ typedef struct record : BaseRecord {
 } Record;
 
 typedef struct funcRecord : BaseRecord {
-	vector<type_t> args;
-	funcRecord(string a, type_t b, vector<type_t> c) : BaseRecord(a,b), args(c){}
+	vector<string> args;
+	funcRecord(string a, type_t b, vector<string> c) : BaseRecord(a,b), args(c){}
 } FuncRecord;
 
 typedef struct arrRecord : Record {
