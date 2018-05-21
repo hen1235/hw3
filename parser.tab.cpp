@@ -2201,7 +2201,7 @@ int main()
 
 int yyerror(const char * message)
 {
-	cout<<"Parse error: "<<message<<endl;
+	errorSyn(yylineno);
 	exit(0);
 }
 
