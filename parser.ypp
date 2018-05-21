@@ -43,17 +43,13 @@
 
 Program	:	
 		{
-
 			/* insert print function to symbol table */
-			Tuple print, printi, tuple;
-			print.parent = NULL;
+			Tuple tuple;
 			vector<Var> printArgs;
 			Var var1 = {_STRING,0,"a"};
 			printArgs.push_back(var1);
 			BaseRecord* printRecord = new FuncRecord("print",_VOID,printArgs);
-			print.table.push_back(printRecord);
-			tables.push(print);
-			offsets.push(0);			
+			tuple.table.push_back(printRecord);
 
 			// FuncRecord* funcRecord = dynamic_cast<FuncRecord*>(print.table.back());
 			// if(funcRecord != NULL){
@@ -61,62 +57,19 @@ Program	:
 			// }
 
 			/* insert printi function to symbol table */
-			printi.parent = &(tables.top());
 			vector<Var> printiArgs;
 			Var var2 = {_INT,0,"a"}; 
 			printiArgs.push_back(var2);
 			BaseRecord* printiRecord = new FuncRecord("printi",_VOID,printiArgs);
-			printi.table.push_back(printiRecord);
-			tables.push(printi);
-			offsets.push(0);
+			tuple.table.push_back(printiRecord);
 
-			tuple.parent = &(tables.top());
+			tuple.parent = NULL;
 			tables.push(tuple);
 			offsets.push(0);
+			// cout << tables.top().table.size() << " $$$$" << endl;
 
+		} Funcs CLOSESCOPE
 
-
-		} Funcs 
-		{				
-				Tuple* tuple;
-				vector<BaseRecord*>* table;
-				cout << tables.size() << " ****\n" << endl;
-				Record* record;
-				ArrRecord* arrRecord;
-				FuncRecord* funcRecord;
-				while( tuple != NULL){
-					tuple = &(tables.top());
-					table = &(tuple->table);
-					for(vector<BaseRecord*>::iterator it = table->begin(); it != table->end(); ++it){
-						// cout << table->size() << " ****\n" << endl;
-						record = dynamic_cast<Record*>(*it);
-						if(record != NULL){ // record of variable
-							// cout << "ok1\n" << endl;
-							printID(record->name, record->offset, types[record->type]);
-						}
-						// cout << "ok3\n" << endl;
-						arrRecord = dynamic_cast<ArrRecord*>(*it);
-						if(arrRecord != NULL){ // record of array
-							// cout << "ok\n" << endl;
-							printID(arrRecord->name,arrRecord->offset,makeArrayType(types[arrRecord->type],arrRecord->size));
-						}
-						// cout << "ok4\n" << endl;
-						funcRecord = dynamic_cast<FuncRecord*>(*it);
-						if(funcRecord != NULL){ // record of function
-							// cout << "ok2\n" << endl;
-							vector<string> tmp;
-							for(vector<Var>::iterator it = funcRecord->args.begin(); it != funcRecord->args.end(); ++it){
-								tmp.push_back(types[it->type]);
-							}
-							printID(funcRecord->name, 0, makeFunctionType(types[funcRecord->type],tmp));
-						}
-						
-					}
-					tuple = tuple->parent;
-					tables.pop();
-					offsets.pop();
-				}
-		}
 		;
 
 Funcs	: /* epsilon */
@@ -144,7 +97,7 @@ FuncDecl	:  RetType
 				tables.top().table.push_back(funcRecord);
 				// FuncRecord* tmp = dynamic_cast<FuncRecord*>((tables.top().table).back());
 				// cout << tmp->args[0] << " ******\n" << endl;
-				//cout << tables.top().table.size() << " ****\n" << endl;
+				// cout << tables.top().table.size() << " -----" << endl;
 				
 				
 			}	LBRACE OPENSCOPE 
@@ -156,7 +109,7 @@ FuncDecl	:  RetType
 					offsets.top()++;
 				}
 				args.clear();
-			} Statments { funcType = _NULL; }CLOSESCOPE RBRACE
+			} Statments { funcType = _NULL; } CLOSESCOPE RBRACE
 			;
 
 
@@ -459,6 +412,52 @@ CLOSESCOPE	: {
 				offsets.pop();
 			}
 			;
+
+// CLOSEGLOBAL	: {
+// 				// cout << "ok0" << endl;
+// 				endScope();
+// 				Tuple* tuple;
+// 				vector<BaseRecord*>* table;
+// 				cout << tables.top().table.size() << " ****" << endl;
+// 				Record* record;
+// 				ArrRecord* arrRecord;
+// 				FuncRecord* funcRecord;
+// 				int i=0;
+
+// 				while (i++<3){
+// 					tuple = &(tables.top());
+// 					table = &(tuple->table);
+// 					for(vector<BaseRecord*>::iterator it = table->begin(); it != table->end(); ++it){
+// 						// cout << table->size() << " ****\n" << endl;
+// 						record = dynamic_cast<Record*>(*it);
+// 						if(record != NULL){ // record of variable
+// 							// cout << "ok1\n" << endl;
+// 							printID(record->name, record->offset, types[record->type]);
+// 						}
+// 						// cout << "ok3\n" << endl;
+// 						arrRecord = dynamic_cast<ArrRecord*>(*it);
+// 						if(arrRecord != NULL){ // record of array
+// 							// cout << "ok\n" << endl;
+// 							printID(arrRecord->name,arrRecord->offset,makeArrayType(types[arrRecord->type],arrRecord->size));
+// 						}
+// 						// cout << "ok4\n" << endl;
+// 						funcRecord = dynamic_cast<FuncRecord*>(*it);
+// 						if(funcRecord != NULL){ // record of function
+// 							// cout << "ok2\n" << endl;
+// 							vector<string> tmp;
+// 							for(vector<Var>::iterator it = funcRecord->args.begin(); it != funcRecord->args.end(); ++it){
+// 								tmp.push_back(types[it->type]);
+// 							}
+// 							printID(funcRecord->name, 0, makeFunctionType(types[funcRecord->type],tmp));
+// 						}
+						
+// 					}
+// 					tables.pop();
+// 					offsets.pop();
+// 				}
+// 			}
+// 			;
+
 %%
 
 int main()
