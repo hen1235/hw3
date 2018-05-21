@@ -12,7 +12,7 @@ using namespace std;
 using namespace output;
 
 typedef struct tuple Tuple;
-
+typedef struct var Var;
 typedef enum Type
 {
 	_INT,
@@ -20,15 +20,20 @@ typedef enum Type
 	_STRING,
 	_BYTE,
 	_VOID,
-	_NONE
+	_NULL
 } type_t;
 
 
-typedef struct var{
+struct var{
 	type_t type;
 	int size;
 	string name;
-} Var;
+	// inline bool operator==(const Var& var1){
+	// 	if(var1.type == type)
+	// 		return true;
+	// 	return false;
+	// }
+};
 
 typedef struct baseRecord {
 	string name;
@@ -43,8 +48,8 @@ typedef struct record : BaseRecord {
 } Record;
 
 typedef struct funcRecord : BaseRecord {
-	vector<string> args;
-	funcRecord(string a, type_t b, vector<string> c) : BaseRecord(a,b), args(c){}
+	vector<Var> args;
+	funcRecord(string a, type_t b, vector<Var> c) : BaseRecord(a,b), args(c){}
 } FuncRecord;
 
 typedef struct arrRecord : Record {
