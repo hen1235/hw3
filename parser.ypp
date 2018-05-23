@@ -305,26 +305,9 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					exit(0); 
 				}
 			}
-			| IF LPAREN Exp 
-			{
-				// cout << "$3.type = " << $3.type << endl;
-				if($3.type != _BOOL){
-					errorMismatch(yylineno);
-					exit(0);
-				}
-			} 
-			RPAREN  OPENSCOPE Statement CLOSESCOPE %prec IFX
+			| IF LPAREN IfExp RPAREN OPENSCOPE Statement CLOSESCOPE %prec IFX
 
-			| IF LPAREN Exp 
-			{
-				// cout << "$3.type = " << $3.type << endl;
-				if($3.type != _BOOL){
-				// cout << "here" << endl;
-					errorMismatch(yylineno);
-					exit(0);
-				}
-			}
-			RPAREN OPENSCOPE Statement CLOSESCOPE ELSE OPENSCOPE Statement CLOSESCOPE
+			| IF LPAREN IfExp RPAREN OPENSCOPE Statement CLOSESCOPE ELSE OPENSCOPE Statement CLOSESCOPE
 
 			| WHILE LPAREN Exp RPAREN 
 				{ whileFlag = 1; } OPENSCOPE Statement CLOSESCOPE { whileFlag = 0; }
@@ -337,6 +320,16 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			}
 			;
 
+IfExp 	: Exp 			
+		{
+			// cout << "$3.type = " << $3.type << endl;
+			if($1.type != _BOOL){
+			// cout << "here" << endl;
+				errorMismatch(yylineno);
+				exit(0);
+			}
+		}
+		;
 Call	: ID LPAREN ExpList RPAREN
  		{
  			//vector<Var> argList = params;
