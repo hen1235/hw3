@@ -1,1 +1,1 @@
-line 2: identifier  is already defined
+line 4: variable xx is not defined

@@ -1,1 +1,1 @@
-line 2: type mismatch
+line 2: variable main is not defined

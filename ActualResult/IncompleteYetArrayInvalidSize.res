@@ -1,1 +1,1 @@
-Parse error: syntax error
+line 1: syntax error

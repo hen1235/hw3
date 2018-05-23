@@ -28,6 +28,7 @@ struct var{
 	type_t type;
 	int size;
 	string name;
+	int val;
 	// inline bool operator==(const Var& var1){
 	// 	if(var1.type == type)
 	// 		return true;

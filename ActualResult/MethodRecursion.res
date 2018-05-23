@@ -1,2 +1,2 @@
 ---end scope---
-line 4: variable  is not defined
+line 4: type mismatch

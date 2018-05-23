@@ -1,1 +1,4 @@
-line 2: variable  is not defined
+---end scope---
+x INT 0
+c BOOL 1
+line 15: type mismatch

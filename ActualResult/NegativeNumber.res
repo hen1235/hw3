@@ -1,1 +1,1 @@
-line 2: variable  is not defined
+line 4: syntax error

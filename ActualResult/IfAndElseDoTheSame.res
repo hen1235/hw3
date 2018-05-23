@@ -1,1 +1,3 @@
-line 3: type mismatch
+---end scope---
+---end scope---
+line 4: syntax error
