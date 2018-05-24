@@ -255,15 +255,17 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			}
 			| ID LBRACK Exp RBRACK ASSIGN Exp SC
 			{
+				// cout << "****** array assignment ********" << endl;
 				type_t type;
 				int size, res;
 				res = get_arr_size_and_type($1.name, &type, &size);
-				type = get_variable_type($1.name);
-				if(res == -1 || type != _NULL){
+				if(res == -1){
 					errorUndef(yylineno, $1.name);
 					exit(0);
 				}
-				else if($3.type != _INT && $3.type != _BYTE){
+				$1.type = type;
+				$1.size = size;
+				if($3.type != _INT && $3.type != _BYTE){
 					errorMismatch(yylineno); 
 					exit(0); 
 				}
@@ -283,6 +285,8 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					errorMismatch(yylineno); 
 					exit(0); 
 				}
+
+
 
 			}
 			| Call SC
