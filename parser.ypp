@@ -142,6 +142,10 @@ FormalDecl	: Type ID
 			}
 			| Type ID LBRACK NUM RBRACK 
 			{ 
+				if($4.val <= 0 || $4.val >= 256){
+					errorInvalidArraySize(yylineno,$2.name);
+					exit(0);
+				}
 				Var var = {$1.type,0,$2.name};
 				args.push_back(var);
 				BaseRecord* arrRecord =  new ArrRecord($2.name,$2.type,offsets.top()-$4.val,$4.val);
@@ -149,6 +153,10 @@ FormalDecl	: Type ID
 			}
 			| Type ID LBRACK NUM B RBRACK 
 			{ 
+				if($4.val <= 0 || $4.val >= 256){
+					errorInvalidArraySize(yylineno,$2.name);
+					exit(0);
+				}
 				Var var = {$1.type,0,$2.name};
 				args.push_back(var);
 				BaseRecord* arrRecord = new ArrRecord($2.name,$2.type,offsets.top()-$4.val,$4.val);
@@ -185,6 +193,19 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					errorUndef(yylineno, $2.name);
 					exit(0);
 				}
+				// if($4.size != -1){
+				// 	errorMismatch(yylineno);
+				// 	exit(0);
+				// }
+				else if($1.type == _INT && ($4.type != _INT && $4.type != _BYTE )){
+					errorMismatch(yylineno); 
+					exit(0); 
+				}
+				else if($1.type != _INT && $1.type != $4.type){
+					errorMismatch(yylineno); 
+					exit(0); 
+				}
+
 				$2.type = $1.type;
 				$2.size = -1;
 				BaseRecord* record = new Record($2.name, $1.type, offsets.top());
@@ -199,7 +220,12 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				res = get_arr_size_and_type($2.name, &type, &size);
 				type = get_variable_type($2.name);
 				if(res == 0 || type != _NULL){
+					// cout << res << " " << type << " " << $4.val << endl;
 					errorDef(yylineno, $2.name);
+					exit(0);
+				}
+				if($4.val <= 0 || $4.val >= 256){
+					errorInvalidArraySize(yylineno,$2.name);
 					exit(0);
 				}
 				$2.type = $1.type;
@@ -220,6 +246,10 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					errorDef(yylineno, $2.name);
 					exit(0);
 				}
+				if($4.val <= 0 || $4.val >= 256){
+					errorInvalidArraySize(yylineno,$2.name);
+					exit(0);
+				}
 				$2.type = $1.type;
 				$2.size = $4.val;
 				// cout << $4.val << " ***1***"<< endl;
@@ -229,29 +259,30 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			}
 			| ID ASSIGN Exp SC 
 			{
-			 
-				type_t type = get_variable_type($1.name);
-				if(type == _NULL){
-					errorUndef(yylineno, $1.name);
+			 	// cout << "here" << endl;
+				type_t type;
+				int size, res;
+				res = get_arr_size_and_type($1.name, &type, &size);
+				if(res == -1){
+					if((type = get_variable_type($1.name)) == _NULL){
+						errorUndef(yylineno, $1.name);
+						exit(0);
+					}
+				}
+
+				if($3.size != $1.size){
+					errorMismatch(yylineno);
 					exit(0);
 				}
-			
 				else if($1.type == _INT && ($3.type != _INT && $3.type != _BYTE )){
 					errorMismatch(yylineno); 
 					exit(0); 
 				}
-				else if($1.type == _BYTE && $3.type != _BYTE){
+				else if($1.type != _INT && $1.type != $3.type){
 					errorMismatch(yylineno); 
 					exit(0); 
 				}
-				else if($1.type == _BOOL && $3.type !=_BOOL){
-					errorMismatch(yylineno); 
-					exit(0); 
-				}
-				else if($1.type == _STRING && $3.type !=_STRING){
-					errorMismatch(yylineno); 
-					exit(0); 
-				}
+				$1.type = type;
 			}
 			| ID LBRACK Exp RBRACK ASSIGN Exp SC
 			{
@@ -261,6 +292,10 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				res = get_arr_size_and_type($1.name, &type, &size);
 				if(res == -1){
 					errorUndef(yylineno, $1.name);
+					exit(0);
+				}
+								if($4.size != -1){
+					errorMismatch(yylineno);
 					exit(0);
 				}
 				$1.type = type;
@@ -403,6 +438,7 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 				exit(0);
 			}
 			$1.type = type;
+			// $1.size = -1;
 			$$ = $1; 
 		}
 		| Call { $$ = $1; }

@@ -2,7 +2,7 @@
 ---end scope---
 d INT -1
 e BOOL -2
-f BYTE[7] -3
+f BYTE[7] -9
 ---end scope---
 ---end scope---
 ---end scope---

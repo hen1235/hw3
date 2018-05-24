@@ -8,4 +8,4 @@ x INT[42] 0
 x BYTE[60] 0
 ---end scope---
 x BOOL[255] 0
-line 22: array INT declared with invalid size
+line 22: array x declared with invalid size

@@ -50,7 +50,7 @@ compareFiles "IfAndElseDoTheSame"
 compareFiles "IllegalBreak"
 compareFiles "IncompleteSyntaxArray"
 compareFiles "IncompleteYetArrayInvalidSize"
-compareFiles "IncompleteYetDefinedVar"
+compareFiles "VarParameterIsAlreadyAMethod"
 compareFiles "LexicalBeforeNoVoidMain"
 compareFiles "LonelyIf"
 compareFiles "LonelyIfRequiresBool"
@@ -81,4 +81,8 @@ compareFiles "intMain"
 compareFiles "mainWithParameters"
 compareFiles "t1"
 compareFiles "t2"
+compareFiles "MethodWasNotDefinedYet" # New test :)
+compareFiles "TemporaryScopeIsForgottenInBrotherScopes" # New test :)
+compareFiles "VariableDefinedButNotAsAMethod" # New test :)
+
 printSummary
