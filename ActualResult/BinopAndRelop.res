@@ -1,1 +1,1 @@
-line 4: type mismatch
+line 8: type mismatch
