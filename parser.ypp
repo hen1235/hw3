@@ -118,12 +118,25 @@ FuncDecl	:  RetType
 			}	LBRACE OPENSCOPE 
 			{
 				// cout << "here" << endl;
-
+				BaseRecord* record;
+				int size;
+				// cout << offsets.top() << endl;
 				for(vector<Var>::iterator it = args.begin(); it != args.end(); ++it){
-					BaseRecord* record =  new Record(it->name,it->type,offsets.top()-1);
+					if(it->size > 0){
+						// cout << "val = " << it->val << endl;
+						record = new ArrRecord(it->name,it->type,offsets.top()-it->size,it->size);
+						size = it->size;
+					}
+					else {
+						record = new Record(it->name,it->type,offsets.top()-1);
+						size = 1;
+
+					}
+					// cout << size << endl;
 					tables.top().table.push_back(record);
-					offsets.top()++;
+					offsets.top()-=size;
 				}
+
 				args.clear();
 			} Statments CLOSESCOPE RBRACE { funcType = _NULL; }
 			;
@@ -144,10 +157,10 @@ FormalsList	: FormalDecl
 FormalDecl	: Type ID
 			{ 
 				// cout << "here\n" << endl;
-				Var var = {$1.type,0,$2.name};
+				Var var = {$1.type,-1,$2.name};
 
 				args.push_back(var);
-				
+					
 				// cout << "size = " << tables.top().table.size() << "\n" << endl;
 				// cout << tmp->name << " " << tmp->offset << "\n" << endl;
 				// cout << tables.top().table.size() << " ****\n" << endl;
@@ -158,10 +171,9 @@ FormalDecl	: Type ID
 					errorInvalidArraySize(yylineno,$2.name);
 					exit(0);
 				}
-				Var var = {$1.type,0,$2.name};
+				Var var = {$1.type,$4.val,$2.name};
 				args.push_back(var);
-				BaseRecord* arrRecord =  new ArrRecord($2.name,$2.type,offsets.top()-$4.val,$4.val);
-				tables.top().table.push_back(arrRecord); 
+
 			}
 			| Type ID LBRACK NUM B RBRACK 
 			{ 
@@ -169,10 +181,9 @@ FormalDecl	: Type ID
 					errorInvalidArraySize(yylineno,$2.name);
 					exit(0);
 				}
-				Var var = {$1.type,0,$2.name};
+				Var var = {$1.type,$4.val,$2.name};
 				args.push_back(var);
-				BaseRecord* arrRecord = new ArrRecord($2.name,$2.type,offsets.top()-$4.val,$4.val);
-				tables.top().table.push_back(arrRecord); 
+	 
 
 			}
 			;
@@ -286,22 +297,13 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					$1.type = type2;
 					$1.size = -1;
 				}
-				if((res = get_arr_size_and_type($3.name, &type1, &size)) == -1 && 
-					(type2 = get_variable_type($3.name)) == _NULL){ // Exp var or arr don't exist
-					errorUndef(yylineno, $3.name);
-					exit(0);
-				}
-				else if(res == 0){ // Exp is arr
-					$3.type = type1;
-					$3.size = size;
-				}
-				else if(type2 != _NULL){ // Exp is var
-					$3.type = type2;
-					$3.size = -1;
-				}
 
 				// cout << $1.size << " " << $3.size << endl;
 				if($3.size != $1.size){
+					errorMismatch(yylineno);
+					exit(0);
+				}
+				else if ($1.size > 0 && $3.type != $1.type){
 					errorMismatch(yylineno);
 					exit(0);
 				}
@@ -405,11 +407,13 @@ Call	: ID LPAREN ExpList RPAREN
  		{
  			//vector<Var> argList = params;
  			//
- 			// cout << $1.name << " " << argList[0] << "\n" << endl;
+ 			// cout << $1.name << endl;
 			if(!check_func_exist($1.name, params)){
-				errorUndef(yylineno, $1.name);
+				errorUndefFunc(yylineno, $1.name);
 				exit(0);
 			}
+			// cout << "func" << endl;
+
 			$$.type = $1.type;
 			params.clear();
 
@@ -417,7 +421,7 @@ Call	: ID LPAREN ExpList RPAREN
 		| ID LPAREN RPAREN 
 		{
 			if(!check_func_exist($1.name, vector<Var>())){
-				errorUndef(yylineno, $1.name);
+				errorUndefFunc(yylineno, $1.name);
 				exit(0);
 			}
 			$$.type = $1.type;
@@ -440,13 +444,29 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 			// cout << "here1" << endl;
 			type_t type = _NULL;
 
-			int size, res;
+			int size = -1, res;
 			res = get_arr_size_and_type($1.name, &type, &size);
 			if(res == -1){
 				errorUndef(yylineno, $1.name);
 				exit(0);
 			}
-			// cout << "type = " << type << endl;
+			$1.type = type;
+			type_t type1, type2;
+			if((res = get_arr_size_and_type($3.name, &type1, &size)) == -1 && 
+				(type2 = get_variable_type($3.name)) == _NULL){ // ID var or arr don't exist
+				// errorUndef(yylineno, $3.name);
+				// exit(0);
+			}
+			else if(res == 0){ // ID is arr
+				$3.type = type1;
+				$3.size = size;
+			}
+			else if(type2 != _NULL){ // ID is var
+				// cout << $1.name << endl;
+				$3.type = type2;
+				$3.size = -1;
+			}
+			// cout << $1.type << " " << $3.type << endl;
 			if($3.type != _BYTE && $3.type != _INT){
 				// cout << "here" << endl;
 				errorMismatch(yylineno);
@@ -454,8 +474,8 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 			}
 			// cout << "here2" << endl;
 
-			$$.type = $1.type = type;
-			$$.size = -1;
+			$$.type = $1.type;
+			$$.size = size;
 
 		} 
 		| Exp SUB Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
@@ -464,27 +484,49 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 		| Exp DIV Exp { match_operands($1.type,$3.type,true); $$.type = _INT; }
 		| ID
 		{ 
-			type_t type = get_variable_type($1.name);
-			if(type == _NULL){
+			type_t type1, type2;
+			int size, res;
+			if((res = get_arr_size_and_type($1.name, &type1, &size)) == -1 && 
+				(type2 = get_variable_type($1.name)) == _NULL){ // ID var or arr don't exist
 				errorUndef(yylineno, $1.name);
 				exit(0);
 			}
-			$1.type = type;
-			// $1.size = -1;
+			else if(res == 0){ // ID is arr
+				$1.type = type1;
+				$1.size = size;
+			}
+			else if(type2 != _NULL){ // ID is var
+				// cout << $1.name << endl;
+				$1.type = type2;
+				$1.size = -1;
+			}
 			$$ = $1; 
 		}
 		| Call { $$ = $1; }
 		| NUM { $$.type = _INT; $$.val = $1.val; }
-		| NUM B { $$.type = _BYTE; $$.val = $1.val; }
+		| NUM B 
+		{ 
+			
+			if($1.val < 0 || $1.val >= 256){
+				errorByteTooLarge(yylineno,$1.val_str);
+				exit(0);
+			}
+			$$.type = _BYTE; 
+			$$.val = $1.val; 
+		}
 		| STRING  { $$.type = _STRING; }
 		| TRUE { $$.type = _BOOL;}
 		| FALSE { $$.type = _BOOL; }
-		| NOT Exp { if($2.type != _BOOL){
-						errorMismatch(yylineno);
-						exit(0);
-						} 
-					$$.type = _BOOL;
-				}
+		| NOT Exp 
+		{ 
+			if($2.type != _BOOL){
+				// cout << "here" << endl;
+				errorMismatch(yylineno);
+				exit(0);
+			} 
+			$$.type = _BOOL;
+			$$.size = -1;
+		}
 		| Exp AND Exp { match_operands($1.type,$3.type,false); $$.type = _BOOL; }
 		| Exp OR Exp { match_operands($1.type,$3.type,false); $$.type = _BOOL; }
 		| Exp EQ Exp { match_operands($1.type,$3.type,true); $$.type = _BOOL; }

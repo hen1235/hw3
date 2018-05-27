@@ -1,2 +1,2 @@
 ---end scope---
-line 6: variable f is not defined
+line 6: function f is not defined

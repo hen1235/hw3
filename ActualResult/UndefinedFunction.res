@@ -1,1 +1,1 @@
-line 2: variable h is not defined
+line 2: function h is not defined

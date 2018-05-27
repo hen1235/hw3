@@ -1006,7 +1006,7 @@ YY_RULE_SETUP
 case 30:
 YY_RULE_SETUP
 #line 68 "scanner.lex"
-{Var var; sscanf(yytext, "%d", &(var.val)); yylval = var;  return NUM;}
+{Var var; sscanf(yytext, "%d", &(var.val)); var.val_str = yytext; yylval = var;  return NUM;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP

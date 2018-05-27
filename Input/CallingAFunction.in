@@ -8,7 +8,7 @@ void g(int x[42]){
 void main(){
 	bool a[250];
 	int x[41];
-	a[x[20]] = f(f(f(f(f(f(f(f(false))))))));
+	a[0] = f(f(f(f(f(f(f(f(false))))))));
 	f(true);
 	f(a[x[3]]);
 	g(x);
