@@ -10,5 +10,5 @@ int h(int a,int c){
 	return 7;
 }
 void main(){
-	h(h(f(),g()),h(g(),f()));
+	h(3,h(g(),f()));
 }
