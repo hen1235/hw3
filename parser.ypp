@@ -4,7 +4,7 @@
 	#include <stdlib.h>
 
 	using namespace std;
-	int whileFlag = 0;
+	stack<int> whileStack;
 	bool mainExist = false;
  	type_t funcType = _NULL;
 	extern int yylex();
@@ -100,7 +100,6 @@ FuncDecl	:  RetType
 
 			} LPAREN Formals RPAREN 
 			{
-				
 				type_t type;
 				if(check_func_exist($3.name, args,&type)){
 					errorDef(yylineno, $3.name);
@@ -119,22 +118,20 @@ FuncDecl	:  RetType
 			{
 				// cout << "here" << endl;
 				BaseRecord* record;
-				int size;
+				int size, offset = offsets.top();
 				// cout << offsets.top() << endl;
 				for(vector<Var>::iterator it = args.begin(); it != args.end(); ++it){
+					// cout << "size = " << it->size << endl;
 					if(it->size > 0){
-						// cout << "val = " << it->val << endl;
-						record = new ArrRecord(it->name,it->type,offsets.top()-it->size,it->size);
-						size = it->size;
+						offset -= it->size;
+						record = new ArrRecord(it->name,it->type,offset,it->size);
 					}
 					else {
-						record = new Record(it->name,it->type,offsets.top()-1);
-						size = 1;
-
+						offset--;
+						record = new Record(it->name,it->type,offset);
 					}
 					// cout << size << endl;
 					tables.top().table.push_back(record);
-					offsets.top()-=size;
 				}
 
 				args.clear();
@@ -157,6 +154,11 @@ FormalsList	: FormalDecl
 FormalDecl	: Type ID
 			{ 
 				// cout << "here\n" << endl;
+				type_t type;
+				if(check_func_exist($2.name, vector<Var>(),NULL)){
+					errorDef(yylineno, $2.name);
+					exit(0);
+				}
 				Var var = {$1.type,-1,$2.name};
 
 				args.push_back(var);
@@ -167,6 +169,11 @@ FormalDecl	: Type ID
 			}
 			| Type ID LBRACK NUM RBRACK 
 			{ 
+				type_t type;
+				if(check_func_exist($2.name, vector<Var>(),NULL)){
+					errorDef(yylineno, $2.name);
+					exit(0);
+				}
 				if($4.val <= 0 || $4.val >= 256){
 					errorInvalidArraySize(yylineno,$2.name);
 					exit(0);
@@ -177,6 +184,11 @@ FormalDecl	: Type ID
 			}
 			| Type ID LBRACK NUM B RBRACK 
 			{ 
+				type_t type;
+				if(check_func_exist($2.name, vector<Var>(),NULL)){
+					errorDef(yylineno, $2.name);
+					exit(0);
+				}				
 				if($4.val <= 0 || $4.val >= 256){
 					errorInvalidArraySize(yylineno,$2.name);
 					exit(0);
@@ -396,10 +408,10 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			| IF LPAREN IfExp RPAREN OPENSCOPE Statement CLOSESCOPE ELSE OPENSCOPE Statement CLOSESCOPE
 
 			| WHILE LPAREN Exp RPAREN 
-				{ whileFlag = 1; } OPENSCOPE Statement CLOSESCOPE { whileFlag = 0; }
+				{ whileStack.push(1); } OPENSCOPE Statement CLOSESCOPE { whileStack.pop(); }
 			| BREAK SC 
 			{ 
-				if(!whileFlag){ 
+				if(whileStack.empty() || !whileStack.top()){ 
 					errorUnexpectedBreak(yylineno); 
 					exit(0);
 				}
@@ -594,7 +606,12 @@ CLOSESCOPE	: {
 						// cout << "ok2\n" << endl;
 						vector<string> tmp;
 						for(vector<Var>::iterator it = funcRecord->args.begin(); it != funcRecord->args.end(); ++it){
+							if(it->size > 0){
+								tmp.push_back(types[it->type]+'['+NumberToString(it->size)+']');
+								continue;
+							}
 							tmp.push_back(types[it->type]);
+
 						}
 						printID(funcRecord->name, 0, makeFunctionType(types[funcRecord->type],tmp));
 						continue;
@@ -704,13 +721,20 @@ bool check_func_exist(string name, vector<Var> argList, type_t* retType){
 			}
 			// cout << funcRecord->name << " /////\n" << endl;
 			if(funcRecord->name == name){
-
+				if(retType == NULL){
+					return true;
+				}
 				for(it1 = argList.begin(),it2 = funcRecord->args.begin(); 
 					it1 != argList.end() && it2 != funcRecord->args.end(); ++it1, ++it2){
 					// cout << it1->type << " " << it1->size << " "<< it2->type << " " << it2->size << endl; 
 					if(it1->type != it2->type || it1->size != it2->size){
 						for(tmp = funcRecord->args.begin(); tmp != funcRecord->args.end();++tmp){
-							errorArgs.push_back(types[tmp->type]+'['+NumberToString(tmp->size)+']');
+							if(tmp->size > 0){
+								errorArgs.push_back(types[tmp->type]+'['+NumberToString(tmp->size)+']');
+								continue;
+							}
+							errorArgs.push_back(types[tmp->type]);
+
 						}
 						errorPrototypeMismatch(yylineno,name,errorArgs);
 						exit(0);
