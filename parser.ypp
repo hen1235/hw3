@@ -72,7 +72,14 @@ Program	:
 
 		} Funcs 
 		{ 
-			// cout << mainExist << endl;
+			// cout << "-" << yytext << "-" << endl;
+			string tmp = yytext;
+			// cout << (tmp.compare("}")) << " " << tmp << " " << (tmp.empty()) << endl;
+
+			if((tmp.compare("}") != 0) && (tmp.empty() == 0)){
+				errorSyn(yylineno);
+				exit(0);
+			}
 			if(mainExist == false){
 				errorMainMissing();
 				exit(0);
@@ -92,14 +99,14 @@ FuncDecl	:  RetType
 			} 
 				ID
 			{ 					
-				if($3.name == "main"){
-					mainExist = true;
-				}
 				// cout << "here "<< endl;
 				$3.type = $1.type;	
 
 			} LPAREN Formals RPAREN 
 			{
+				if($1.type == _VOID && $3.name == "main" && args.empty()){
+					mainExist = true;
+				}
 				type_t type;
 				if(check_func_exist($3.name, args,&type)){
 					errorDef(yylineno, $3.name);
@@ -135,11 +142,11 @@ FuncDecl	:  RetType
 				}
 
 				args.clear();
-			} Statments CLOSESCOPE RBRACE { funcType = _NULL; }
+			} Statments RBRACE CLOSESCOPE { funcType = _NULL; }
 			;
 
 
-RetType	: Type { $$.type = $1.type;}
+RetType	: Type { $$.type = $1.type; }
 		| VOID { $$.type = _VOID; }
 		;
 
@@ -225,7 +232,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				// cout << "here1" << endl;
 				type_t type = get_variable_type($2.name);
 				if(type != _NULL){
-					errorUndef(yylineno, $2.name);
+					errorDef(yylineno, $2.name);
 					exit(0);
 				}
 				// if($4.size != -1){
@@ -386,6 +393,10 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			| Call SC
 			| RETURN SC 
 			{ 
+				if(funcType == _NULL){
+					errorSyn(yylineno); 
+					exit(0);
+				}
 				if(funcType != _VOID){ 
 					errorMismatch(yylineno); 
 					exit(0); 
@@ -394,6 +405,10 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			| RETURN Exp SC 
 			{ 
 				// cout << $2.type << " " << funcType << endl;
+				if(funcType == _NULL){ 
+					errorSyn(yylineno); 
+					exit(0); 
+				}
 				if (funcType == _INT && ($2.type != _INT && $2.type != _BYTE)){
 					errorMismatch(yylineno); 
 					exit(0); 
@@ -407,8 +422,14 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 
 			| IF LPAREN IfExp RPAREN OPENSCOPE Statement CLOSESCOPE ELSE OPENSCOPE Statement CLOSESCOPE
 
-			| WHILE LPAREN Exp RPAREN 
-				{ whileStack.push(1); } OPENSCOPE Statement CLOSESCOPE { whileStack.pop(); }
+			| WHILE LPAREN Exp RPAREN 	
+			{ 
+				whileStack.push(1); 
+				if($3.type != _BOOL){
+					errorMismatch(yylineno);
+					exit(0);
+				} 
+			} OPENSCOPE Statement CLOSESCOPE { whileStack.pop(); }
 			| BREAK SC 
 			{ 
 				if(whileStack.empty() || !whileStack.top()){ 

@@ -24,8 +24,12 @@ fi
 function printSummary {
 if(( $tests_lost == 0 )); then
 	echo "You passed all $tests_won tests :), congratulations!!!"
+	echo "If you have additional ideas for tests, feel free to share"
+	echo "and contribute :)"
 else
 	echo "You passed $tests_won tests, but failed in $tests_lost"
+	echo "New FAQ has been opened in drive link to organize the answers"
+	echo "to all of your questions :)"
 fi
 }
 
@@ -84,5 +88,30 @@ compareFiles "t2"
 compareFiles "MethodWasNotDefinedYet" # New test :)
 compareFiles "TemporaryScopeIsForgottenInBrotherScopes" # New test :)
 compareFiles "VariableDefinedButNotAsAMethod" # New test :)
+compareFiles "ByteAndByteBinop" # No error
+compareFiles "ByteAndIntBinop" # Error report 
+compareFiles "IntAndByteBinop" # Error report
+compareFiles "IntAndIntBinop" # Error report
+compareFiles "InvokingAMethodWithWrongParameter" # Not first time
+compareFiles "LocalBigByteLiteralInArrayDefinition" # New 25 May
+compareFiles "LocalSmallByteLiteralInArrayDefinition" # New 25 May
+compareFiles "LocalBigIntLiteralInArrayDefinition" # New 25 May
+compareFiles "LocalSmallIntLiteralInArrayDefinition" # New 25 May
+compareFiles "LocalBigByteLiteralInArrayAccess" # New 25 May
+compareFiles "LocalSmallByteLiteralInArrayAccess" # New 25 May
+compareFiles "LocalBigIntLiteralInArrayAccess" # New 25 May
+compareFiles "LocalSmallIntLiteralInArrayAccess" # New 25 May
+compareFiles "ParameterBigByteLiteralInArrayDefinition" # New 25 May
+compareFiles "ParameterSmallByteLiteralInArrayDefinition" # New 25 May
+compareFiles "ParameterBigIntLiteralInArrayDefinition" # New 25 May
+compareFiles "ParameterSmallIntLiteralInArrayDefinition" # New 25 May
+compareFiles "parameterNameIsB" # New 26 May
+compareFiles "methodNameIsB" # New 26 May
+compareFiles "parameterDefinedTwice" # New 26 May
+compareFiles "nameIsBothOfMethodAndParameter" # New 26 May
+compareFiles "ArrayAccessesItselfIsImpossible" # New 27 May credited to Dor Braunstein & Shani Keller
+compareFiles "ArrayElementIsNotAnArray" # New 27 May credited to Dor Braunstein & Shani Keller
+compareFiles "ReturningAnArrayElement" # New 27 May
+compareFiles "ReturningArray" # New 27 May
 
 printSummary
