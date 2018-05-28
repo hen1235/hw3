@@ -7,6 +7,8 @@
 #include <stack>
 #include <set>
 #include "output.hpp"
+#include <sstream>
+
 
 using namespace std;
 using namespace output;
@@ -30,12 +32,6 @@ struct var{
 	string name;
 	int val;
 	bool array;
-	string val_str;
-	// inline bool operator==(const Var& var1){
-	// 	if(var1.type == type)
-	// 		return true;
-	// 	return false;
-	// }
 };
 
 typedef struct baseRecord {
@@ -68,5 +64,12 @@ struct tuple {
 
 #define YYSTYPE Var
 
+template <typename T>
+string NumberToString ( T Number )
+{
+ std::ostringstream ss;
+ ss << Number;
+ return ss.str();
+}
 
 #endif

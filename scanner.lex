@@ -65,7 +65,7 @@ break							return BREAK;
 {ADD}							return ADD;
 {SUB}							return SUB;
 {ID}							{Var var; var.name = yytext; yylval = var;  return ID;}
-{NUM}							{Var var; sscanf(yytext, "%d", &(var.val)); var.val_str = yytext; yylval = var;  return NUM;}
+{NUM}							{Var var; sscanf(yytext, "%d", &(var.val)); yylval = var;  return NUM;}
 {EQ}							return EQ;
 {NEQ}							return NEQ;
 {LT}							return LT;
@@ -74,7 +74,7 @@ break							return BREAK;
 {GTE}							return GTE;
 {STRING}						return STRING;
 {WHITESPACE}|{CRLF}|{COMMENT}	;
-.								return ERROR;
+.								{ errorLex(yylineno); exit(0); }
 
 
 										
