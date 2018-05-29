@@ -318,17 +318,21 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			}
 			| ID LBRACK Exp RBRACK ASSIGN Exp SC
 			{				
-				type_t type, type1, type2;
+				type_t type = _NULL, type1 = _NULL, type2;
 				int size, res;
+				if((type1 = get_variable_type($1.name)) != _NULL){
+					errorMismatch(yylineno); 
+					exit(0);				
+				}
+
 				res = get_arr_size_and_type($1.name, &type, &size);
 				if(res == -1){
 					errorUndef(yylineno, $1.name);
 					exit(0);
-				} 
-
+				} 	
 				$1.type = type;
 				$1.size = size;
-				
+
 				if((res = get_arr_size_and_type($6.name, &type1, &size)) == -1 && 
 					(type2 = get_variable_type($6.name)) == _NULL){ // ID var or arr don't exist
 					
@@ -699,9 +703,15 @@ type_t get_variable_type(string name){
 	Tuple *tuple = &(tables.top());
 	vector<BaseRecord*>* table;
 	Record* record;
+	ArrRecord* arrRecord;
 	while(tuple != NULL){
 		table = &(tuple->table);
 		for(vector<BaseRecord*>::iterator it = table->begin(); it != table->end(); ++it){
+			arrRecord = dynamic_cast<ArrRecord*>(*it);
+			if(arrRecord != NULL){
+				continue;
+			}
+
 			record = dynamic_cast<Record*>(*it);
 			if(record == NULL){
 				continue;

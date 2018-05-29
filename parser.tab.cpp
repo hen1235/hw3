@@ -483,11 +483,11 @@ static const yytype_uint16 yyrline[] =
        0,    48,    48,    70,    48,    86,    87,    91,    95,    99,
      112,    90,   139,   140,   143,   144,   147,   148,   151,   162,
      176,   196,   197,   200,   201,   214,   236,   258,   283,   319,
-     369,   370,   381,   404,   406,   409,   408,   416,   425,   434,
-     445,   456,   459,   464,   471,   472,   473,   476,   477,   518,
-     529,   540,   551,   562,   582,   583,   584,   594,   595,   596,
-     597,   607,   608,   609,   610,   611,   612,   613,   614,   617,
-     625
+     373,   374,   385,   408,   410,   413,   412,   420,   429,   438,
+     449,   460,   463,   468,   475,   476,   477,   480,   481,   522,
+     533,   544,   555,   566,   586,   587,   588,   598,   599,   600,
+     601,   611,   612,   613,   614,   615,   616,   617,   618,   621,
+     629
 };
 #endif
 
@@ -1713,17 +1713,21 @@ yyreduce:
   case 29:
 #line 320 "parser.ypp" /* yacc.c:1646  */
     {				
-				type_t type, type1, type2;
+				type_t type = _NULL, type1 = _NULL, type2;
 				int size, res;
+				if((type1 = get_variable_type((yyvsp[-6]).name)) != _NULL){
+					errorMismatch(yylineno); 
+					exit(0);				
+				}
+
 				res = get_arr_size_and_type((yyvsp[-6]).name, &type, &size);
 				if(res == -1){
 					errorUndef(yylineno, (yyvsp[-6]).name);
 					exit(0);
-				} 
-
+				} 	
 				(yyvsp[-6]).type = type;
 				(yyvsp[-6]).size = size;
-				
+
 				if((res = get_arr_size_and_type((yyvsp[-1]).name, &type1, &size)) == -1 && 
 					(type2 = get_variable_type((yyvsp[-1]).name)) == _NULL){ // ID var or arr don't exist
 					
@@ -1761,11 +1765,11 @@ yyreduce:
 					exit(0); 
 				}
 			}
-#line 1765 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1769 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 371 "parser.ypp" /* yacc.c:1646  */
+#line 375 "parser.ypp" /* yacc.c:1646  */
     { 
 				if(funcType == _NULL){
 					errorSyn(yylineno); 
@@ -1776,11 +1780,11 @@ yyreduce:
 					exit(0); 
 				}
 			}
-#line 1780 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1784 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 382 "parser.ypp" /* yacc.c:1646  */
+#line 386 "parser.ypp" /* yacc.c:1646  */
     { 				
 				if(funcType == _NULL){ 
 					errorSyn(yylineno); 
@@ -1803,11 +1807,11 @@ yyreduce:
 					exit(0);					
 				}
 			}
-#line 1807 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1811 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 409 "parser.ypp" /* yacc.c:1646  */
+#line 413 "parser.ypp" /* yacc.c:1646  */
     { 
 				whileStack.push(1); 
 				if((yyvsp[-1]).type != _BOOL){
@@ -1815,28 +1819,28 @@ yyreduce:
 					exit(0);
 				} 
 			}
-#line 1819 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1823 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 415 "parser.ypp" /* yacc.c:1646  */
+#line 419 "parser.ypp" /* yacc.c:1646  */
     { whileStack.pop(); }
-#line 1825 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1829 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 417 "parser.ypp" /* yacc.c:1646  */
+#line 421 "parser.ypp" /* yacc.c:1646  */
     { 
 				if(whileStack.empty() || !whileStack.top()){ 
 					errorUnexpectedBreak(yylineno); 
 					exit(0);
 				}
 			}
-#line 1836 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1840 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 426 "parser.ypp" /* yacc.c:1646  */
+#line 430 "parser.ypp" /* yacc.c:1646  */
     {			
 			if((yyvsp[0]).type != _BOOL){
 			
@@ -1844,11 +1848,11 @@ yyreduce:
 				exit(0);
 			}
 		}
-#line 1848 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1852 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 435 "parser.ypp" /* yacc.c:1646  */
+#line 439 "parser.ypp" /* yacc.c:1646  */
     {
  			type_t type;
 			if(!check_func_exist((yyvsp[-4]).name, callParams.top(), &type)){
@@ -1859,11 +1863,11 @@ yyreduce:
 			(yyval).type = (yyvsp[-4]).type = type;
 			callParams.pop();
 		}
-#line 1863 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1867 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 446 "parser.ypp" /* yacc.c:1646  */
+#line 450 "parser.ypp" /* yacc.c:1646  */
     {
  			type_t type;			
 			if(!check_func_exist((yyvsp[-2]).name, vector<Var>(),&type)){
@@ -1872,59 +1876,59 @@ yyreduce:
 			}
 			(yyval).type = (yyvsp[-2]).type = type;
 		}
-#line 1876 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1880 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 456 "parser.ypp" /* yacc.c:1646  */
+#line 460 "parser.ypp" /* yacc.c:1646  */
     { callParams.push(vector<Var>()); }
-#line 1882 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1886 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 460 "parser.ypp" /* yacc.c:1646  */
+#line 464 "parser.ypp" /* yacc.c:1646  */
     { 			
 			Var var = {(yyvsp[0]).type, (yyvsp[0]).size};
 			callParams.top().push_back(var); 
 		}
-#line 1891 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1895 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 465 "parser.ypp" /* yacc.c:1646  */
+#line 469 "parser.ypp" /* yacc.c:1646  */
     { 			
 			Var var = {(yyvsp[-2]).type, (yyvsp[-2]).size}; 
 			callParams.top().push_back(var); 
 		}
-#line 1900 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1904 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 471 "parser.ypp" /* yacc.c:1646  */
+#line 475 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _INT; }
-#line 1906 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1910 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 472 "parser.ypp" /* yacc.c:1646  */
+#line 476 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BYTE; }
-#line 1912 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1916 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 473 "parser.ypp" /* yacc.c:1646  */
+#line 477 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BOOL; }
-#line 1918 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1922 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 476 "parser.ypp" /* yacc.c:1646  */
+#line 480 "parser.ypp" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 1924 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1928 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 478 "parser.ypp" /* yacc.c:1646  */
+#line 482 "parser.ypp" /* yacc.c:1646  */
     { 			
 			int res, size;
 			type_t type1, type2;
@@ -1965,11 +1969,11 @@ yyreduce:
 			(yyval).size = -1;
 			(yyval).type = (yyvsp[-3]).type;
 		}
-#line 1969 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1973 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 519 "parser.ypp" /* yacc.c:1646  */
+#line 523 "parser.ypp" /* yacc.c:1646  */
     { 
 			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
 			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
@@ -1980,11 +1984,11 @@ yyreduce:
 			} 
 			(yyval).size = -1;
 		}
-#line 1984 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1988 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 530 "parser.ypp" /* yacc.c:1646  */
+#line 534 "parser.ypp" /* yacc.c:1646  */
     { 
 			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
 			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
@@ -1995,11 +1999,11 @@ yyreduce:
 			} 
 			(yyval).size = -1;
 		}
-#line 1999 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2003 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 541 "parser.ypp" /* yacc.c:1646  */
+#line 545 "parser.ypp" /* yacc.c:1646  */
     { 
 			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
 			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
@@ -2010,11 +2014,11 @@ yyreduce:
 			} 
 			(yyval).size = -1;
 		}
-#line 2014 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2018 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 552 "parser.ypp" /* yacc.c:1646  */
+#line 556 "parser.ypp" /* yacc.c:1646  */
     { 
 			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
 			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
@@ -2025,11 +2029,11 @@ yyreduce:
 			} 
 			(yyval).size = -1;
 		}
-#line 2029 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2033 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 563 "parser.ypp" /* yacc.c:1646  */
+#line 567 "parser.ypp" /* yacc.c:1646  */
     { 			
 			type_t type1, type2;
 			int size, res;
@@ -2049,23 +2053,23 @@ yyreduce:
 			}
 			(yyval) = (yyvsp[0]); 
 		}
-#line 2053 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2057 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 582 "parser.ypp" /* yacc.c:1646  */
+#line 586 "parser.ypp" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]); (yyval).size = -1;}
-#line 2059 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2063 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 583 "parser.ypp" /* yacc.c:1646  */
+#line 587 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _INT; (yyval).val = (yyvsp[0]).val; (yyval).size = -1;}
-#line 2065 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2069 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 585 "parser.ypp" /* yacc.c:1646  */
+#line 589 "parser.ypp" /* yacc.c:1646  */
     { 			
 			if((yyvsp[-1]).val < 0 || (yyvsp[-1]).val >= 256){
 				errorByteTooLarge(yylineno,NumberToString((yyvsp[-1]).val));
@@ -2075,29 +2079,29 @@ yyreduce:
 			(yyval).val = (yyvsp[-1]).val;
 			(yyval).size = -1; 
 		}
-#line 2079 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2083 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 594 "parser.ypp" /* yacc.c:1646  */
+#line 598 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _STRING; (yyval).size = -1;}
-#line 2085 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2089 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 595 "parser.ypp" /* yacc.c:1646  */
+#line 599 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2091 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2095 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 596 "parser.ypp" /* yacc.c:1646  */
+#line 600 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2097 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2101 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 598 "parser.ypp" /* yacc.c:1646  */
+#line 602 "parser.ypp" /* yacc.c:1646  */
     { 
 			if((yyvsp[0]).type != _BOOL){
 				
@@ -2107,70 +2111,70 @@ yyreduce:
 			(yyval).type = _BOOL;
 			(yyval).size = -1;
 		}
-#line 2111 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2115 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 607 "parser.ypp" /* yacc.c:1646  */
+#line 611 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,false); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2117 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2121 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 608 "parser.ypp" /* yacc.c:1646  */
+#line 612 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,false); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2123 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2127 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 609 "parser.ypp" /* yacc.c:1646  */
+#line 613 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2129 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2133 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 610 "parser.ypp" /* yacc.c:1646  */
+#line 614 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2135 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2139 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 611 "parser.ypp" /* yacc.c:1646  */
+#line 615 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2141 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2145 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 612 "parser.ypp" /* yacc.c:1646  */
+#line 616 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2147 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2151 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 613 "parser.ypp" /* yacc.c:1646  */
+#line 617 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2153 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2157 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 614 "parser.ypp" /* yacc.c:1646  */
+#line 618 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2159 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2163 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 617 "parser.ypp" /* yacc.c:1646  */
+#line 621 "parser.ypp" /* yacc.c:1646  */
     {
 				Tuple tuple;
 				tuple.parent = &(tables.top());
 				tables.push(tuple);
 				offsets.push(offsets.top());
 			}
-#line 2170 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2174 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 625 "parser.ypp" /* yacc.c:1646  */
+#line 629 "parser.ypp" /* yacc.c:1646  */
     {
 				endScope();
 				
@@ -2211,11 +2215,11 @@ yyreduce:
 				tables.pop();
 				offsets.pop();
 			}
-#line 2215 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2219 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
 
-#line 2219 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2223 "parser.tab.cpp" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2443,7 +2447,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 667 "parser.ypp" /* yacc.c:1906  */
+#line 671 "parser.ypp" /* yacc.c:1906  */
 
 
 int main()
@@ -2479,9 +2483,15 @@ type_t get_variable_type(string name){
 	Tuple *tuple = &(tables.top());
 	vector<BaseRecord*>* table;
 	Record* record;
+	ArrRecord* arrRecord;
 	while(tuple != NULL){
 		table = &(tuple->table);
 		for(vector<BaseRecord*>::iterator it = table->begin(); it != table->end(); ++it){
+			arrRecord = dynamic_cast<ArrRecord*>(*it);
+			if(arrRecord != NULL){
+				continue;
+			}
+
 			record = dynamic_cast<Record*>(*it);
 			if(record == NULL){
 				continue;
