@@ -31,7 +31,6 @@ struct var{
 	int size;
 	string name;
 	int val;
-	bool array;
 };
 
 typedef struct baseRecord {

@@ -480,14 +480,14 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    48,    48,    75,    48,    92,    93,    97,   102,   107,
-     126,    96,   159,   160,   163,   164,   167,   168,   171,   187,
-     202,   224,   225,   228,   229,   244,   271,   294,   320,   356,
-     414,   415,   426,   446,   448,   451,   450,   458,   467,   477,
-     494,   505,   508,   514,   522,   523,   524,   527,   528,   567,
-     577,   587,   597,   608,   629,   630,   631,   642,   643,   644,
-     645,   655,   656,   657,   658,   659,   660,   661,   662,   665,
-     673
+       0,    48,    48,    70,    48,    86,    87,    91,    95,    99,
+     112,    90,   139,   140,   143,   144,   147,   148,   151,   162,
+     176,   196,   197,   200,   201,   214,   236,   258,   283,   319,
+     372,   373,   384,   407,   409,   412,   411,   419,   428,   437,
+     448,   459,   462,   467,   474,   475,   476,   479,   480,   514,
+     525,   536,   547,   558,   578,   579,   580,   590,   591,   592,
+     593,   603,   604,   605,   606,   607,   608,   609,   610,   613,
+     621
 };
 #endif
 
@@ -1400,11 +1400,6 @@ yyreduce:
 			BaseRecord* printRecord = new FuncRecord("print",_VOID,printArgs);
 			tuple.table.push_back(printRecord);
 
-			// FuncRecord* funcRecord = dynamic_cast<FuncRecord*>(print.table.back());
-			// if(funcRecord != NULL){
-			// 	// cout << funcRecord->args[0] << " *****\n" << endl;
-			// }
-
 			/* insert printi function to symbol table */
 			vector<Var> printiArgs;
 			Var var2 = {_INT,-1,"a"}; 
@@ -1415,19 +1410,18 @@ yyreduce:
 			tuple.parent = NULL;
 			tables.push(tuple);
 			offsets.push(0);
-			// cout << tables.top().table.size() << " $$$$" << endl;
+			
 
 		}
-#line 1422 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1417 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 75 "parser.ypp" /* yacc.c:1646  */
+#line 70 "parser.ypp" /* yacc.c:1646  */
     { 
-			// cout << "-" << yytext << "-" << endl;
+			
 			string tmp = yytext;
-			// cout << (tmp.compare("}")) << " " << tmp << " " << (tmp.empty()) << endl;
-
+			
 			if((tmp.compare("}") != 0) && (tmp.empty() == 0)){
 				errorSyn(yylineno);
 				exit(0);
@@ -1437,70 +1431,57 @@ yyreduce:
 				exit(0);
 			} 
 		}
-#line 1441 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1435 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 97 "parser.ypp" /* yacc.c:1646  */
+#line 91 "parser.ypp" /* yacc.c:1646  */
     { 
 				funcType = (yyvsp[0]).type;
-				// cout << $1.type << endl; 
 			}
-#line 1450 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1443 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 102 "parser.ypp" /* yacc.c:1646  */
+#line 95 "parser.ypp" /* yacc.c:1646  */
     { 					
-				// cout << "here "<< endl;
 				(yyvsp[0]).type = (yyvsp[-2]).type;	
 
 			}
-#line 1460 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1452 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 107 "parser.ypp" /* yacc.c:1646  */
+#line 99 "parser.ypp" /* yacc.c:1646  */
     {
+				type_t type;
 				if((yyvsp[-6]).type == _VOID && (yyvsp[-4]).name == "main" && args.empty()){
 					mainExist = true;
 				}
-				type_t type;
 				if(check_func_exist((yyvsp[-4]).name, args,NULL)){
 					errorDef(yylineno, (yyvsp[-4]).name);
 					exit(0);
 				}
+
 				BaseRecord* funcRecord = new FuncRecord((yyvsp[-4]).name, (yyvsp[-6]).type, args);
-				
-				//cout << $3.name << " " << $1.type << " " << dynamic_cast<FuncRecord*>(funcRecord)->args[0] << endl;
 				tables.top().table.push_back(funcRecord);
-				// FuncRecord* tmp = dynamic_cast<FuncRecord*>((tables.top().table).back());
-				// cout << tmp->args[0] << " ******\n" << endl;
-				// cout << tables.top().table.size() << " -----" << endl;
-				
-				
 			}
-#line 1484 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1470 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 126 "parser.ypp" /* yacc.c:1646  */
-    {
-				// cout << "here" << endl;
+#line 112 "parser.ypp" /* yacc.c:1646  */
+    {				
 				BaseRecord* record;
-				int size, offset = offsets.top();
+				int size1, res, size, offset = offsets.top();
 				type_t type1, type2;
-				int size1, res;
-				// cout << offsets.top() << endl;
+				
 				for(vector<Var>::iterator it = args.begin(); it != args.end(); ++it){
-					// cout << "size = " << it->size << endl;
-	
 					if((res = get_arr_size_and_type(it->name, &type1, &size1)) == 0 || 
 						(type2 = get_variable_type(it->name)) != _NULL || check_func_exist(it->name,vector<Var>(),NULL)){ // ID var or arr don't exist
 						errorDef(yylineno, it->name);
 						exit(0);
 					}
-
 					if(it->size > 0){
 						offset -= it->size;
 						record = new ArrRecord(it->name,it->type,offset,it->size);
@@ -1509,37 +1490,36 @@ yyreduce:
 						offset--;
 						record = new Record(it->name,it->type,offset);
 					}
-					// cout << size << endl;
+					
 					tables.top().table.push_back(record);
 				}
 
 				args.clear();
 			}
-#line 1519 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1500 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 155 "parser.ypp" /* yacc.c:1646  */
+#line 136 "parser.ypp" /* yacc.c:1646  */
     { funcType = _NULL; }
-#line 1525 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1506 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 159 "parser.ypp" /* yacc.c:1646  */
+#line 139 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = (yyvsp[0]).type; }
-#line 1531 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1512 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 160 "parser.ypp" /* yacc.c:1646  */
+#line 140 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _VOID; }
-#line 1537 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1518 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 172 "parser.ypp" /* yacc.c:1646  */
-    { 
-				// cout << "here\n" << endl;
+#line 152 "parser.ypp" /* yacc.c:1646  */
+    { 				
 				type_t type;
 				if(check_func_exist((yyvsp[0]).name, vector<Var>(),NULL)){
 					errorDef(yylineno, (yyvsp[0]).name);
@@ -1547,17 +1527,13 @@ yyreduce:
 				}
 				Var var = {(yyvsp[-1]).type,-1,(yyvsp[0]).name};
 
-				args.push_back(var);
-					
-				// cout << "size = " << tables.top().table.size() << "\n" << endl;
-				// cout << tmp->name << " " << tmp->offset << "\n" << endl;
-				// cout << tables.top().table.size() << " ****\n" << endl;
+				args.push_back(var);				
 			}
-#line 1557 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1533 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 188 "parser.ypp" /* yacc.c:1646  */
+#line 163 "parser.ypp" /* yacc.c:1646  */
     { 
 				type_t type;
 				if(check_func_exist((yyvsp[-3]).name, vector<Var>(),NULL)){
@@ -1570,13 +1546,12 @@ yyreduce:
 				}
 				Var var = {(yyvsp[-4]).type,(yyvsp[-1]).val,(yyvsp[-3]).name};
 				args.push_back(var);
-
 			}
-#line 1576 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1551 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 203 "parser.ypp" /* yacc.c:1646  */
+#line 177 "parser.ypp" /* yacc.c:1646  */
     { 
 				type_t type;
 				if(check_func_exist((yyvsp[-4]).name, vector<Var>(),NULL)){
@@ -1593,16 +1568,13 @@ yyreduce:
 				}
 				Var var = {(yyvsp[-5]).type,(yyvsp[-2]).val,(yyvsp[-4]).name};
 				args.push_back(var);
-	 
-
 			}
-#line 1600 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1573 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 230 "parser.ypp" /* yacc.c:1646  */
-    { 
-				// cout << "here" << endl;
+#line 202 "parser.ypp" /* yacc.c:1646  */
+    { 				
 				type_t type = get_variable_type((yyvsp[-1]).name);
 				if(type != _NULL){
 					errorDef(yylineno, (yyvsp[-1]).name);
@@ -1613,24 +1585,18 @@ yyreduce:
 				BaseRecord* record = new Record((yyvsp[-1]).name, (yyvsp[-2]).type, offsets.top());
 				tables.top().table.push_back(record);
 				offsets.top()++;
-
 			}
-#line 1619 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1590 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 245 "parser.ypp" /* yacc.c:1646  */
-    { 
-				// cout << "here1" << endl;
+#line 215 "parser.ypp" /* yacc.c:1646  */
+    { 				
 				type_t type = get_variable_type((yyvsp[-3]).name);
 				if(type != _NULL){
 					errorDef(yylineno, (yyvsp[-3]).name);
 					exit(0);
 				}
-				// if($4.size != -1){
-				// 	errorMismatch(yylineno);
-				// 	exit(0);
-				// }
 				else if((yyvsp[-4]).type == _INT && ((yyvsp[-1]).type != _INT && (yyvsp[-1]).type != _BYTE )){
 					errorMismatch(yylineno); 
 					exit(0); 
@@ -1646,19 +1612,18 @@ yyreduce:
 				tables.top().table.push_back(record);
 				offsets.top()++;
 			}
-#line 1650 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1616 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 272 "parser.ypp" /* yacc.c:1646  */
-    { 
-				// cout << "here2" << endl;
+#line 237 "parser.ypp" /* yacc.c:1646  */
+    { 				
 				type_t type;
 				int size, res;
 				res = get_arr_size_and_type((yyvsp[-4]).name, &type, &size);
 				type = get_variable_type((yyvsp[-4]).name);
 				if(res == 0 || type != _NULL){
-					// cout << res << " " << type << " " << $4.val << endl;
+					
 					errorDef(yylineno, (yyvsp[-4]).name);
 					exit(0);
 				}
@@ -1668,18 +1633,17 @@ yyreduce:
 				}
 				(yyvsp[-4]).type = (yyvsp[-5]).type;
 				(yyvsp[-4]).size = (yyvsp[-2]).val;
-				// cout << $4.val << " ***2***"<< $2.type << endl;
+				
 				BaseRecord* record = new ArrRecord((yyvsp[-4]).name, (yyvsp[-5]).type, offsets.top(), (yyvsp[-4]).size);
 				tables.top().table.push_back(record);
 				offsets.top()+=(yyvsp[-4]).size;
 			}
-#line 1677 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1642 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 295 "parser.ypp" /* yacc.c:1646  */
-    { 
-				// cout << "here3" << endl;				
+#line 259 "parser.ypp" /* yacc.c:1646  */
+    { 				
 				type_t type;
 				int size, res;
 				res = get_arr_size_and_type((yyvsp[-5]).name, &type, &size);
@@ -1698,16 +1662,16 @@ yyreduce:
 				}
 				(yyvsp[-5]).type = (yyvsp[-6]).type;
 				(yyvsp[-5]).size = (yyvsp[-3]).val;
-				// cout << $4.val << " ***1***"<< endl;
+				
 				BaseRecord* record = new ArrRecord((yyvsp[-5]).name, (yyvsp[-6]).type, offsets.top(), (yyvsp[-5]).size);
 				tables.top().table.push_back(record);
 				offsets.top()+=(yyvsp[-5]).size;
 			}
-#line 1707 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1671 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 321 "parser.ypp" /* yacc.c:1646  */
+#line 284 "parser.ypp" /* yacc.c:1646  */
     {
 				type_t type1, type2;
 				int size, res;
@@ -1725,7 +1689,7 @@ yyreduce:
 					(yyvsp[-3]).size = -1;
 				}
 
-				// cout << $1.size << " " << $3.size << endl;
+				
 				if((yyvsp[-1]).size != (yyvsp[-3]).size){
 					errorMismatch(yylineno);
 					exit(0);
@@ -1743,28 +1707,26 @@ yyreduce:
 					exit(0); 
 				}
 			}
-#line 1747 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1711 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 357 "parser.ypp" /* yacc.c:1646  */
-    {
-				// cout << "****** array assignment ********" << endl;
-				type_t type;
+#line 320 "parser.ypp" /* yacc.c:1646  */
+    {				
+				type_t type, type1, type2;
 				int size, res;
 				res = get_arr_size_and_type((yyvsp[-6]).name, &type, &size);
 				if(res == -1){
-					// cout << "here" << endl;
 					errorUndef(yylineno, (yyvsp[-6]).name);
 					exit(0);
-				}
+				} 
+
 				(yyvsp[-6]).type = type;
 				(yyvsp[-6]).size = size;
 				
-				type_t type1, type2;
 				if((res = get_arr_size_and_type((yyvsp[-1]).name, &type1, &size)) == -1 && 
 					(type2 = get_variable_type((yyvsp[-1]).name)) == _NULL){ // ID var or arr don't exist
-					// cout << "here1" << endl;					
+					
 					// errorUndef(yylineno, $6.name);
 					// exit(0);
 				}
@@ -1776,7 +1738,7 @@ yyreduce:
 					(yyvsp[-1]).type = type2;
 					(yyvsp[-1]).size = -1;
 				}
-				// cout << $1.size << " " << $6.size << endl;
+				
 				if((yyvsp[-1]).size != -1){
 					errorMismatch(yylineno); 
 					exit(0); 
@@ -1801,15 +1763,12 @@ yyreduce:
 					errorMismatch(yylineno); 
 					exit(0); 
 				}
-
-
-
 			}
-#line 1809 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1768 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 416 "parser.ypp" /* yacc.c:1646  */
+#line 374 "parser.ypp" /* yacc.c:1646  */
     { 
 				if(funcType == _NULL){
 					errorSyn(yylineno); 
@@ -1820,13 +1779,12 @@ yyreduce:
 					exit(0); 
 				}
 			}
-#line 1824 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1783 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 427 "parser.ypp" /* yacc.c:1646  */
-    { 
-				// cout << $2.type << " " << funcType << endl;
+#line 385 "parser.ypp" /* yacc.c:1646  */
+    { 				
 				if(funcType == _NULL){ 
 					errorSyn(yylineno); 
 					exit(0); 
@@ -1843,12 +1801,16 @@ yyreduce:
 					errorMismatch(yylineno); 
 					exit(0);
 				}
+				else if(funcType == _VOID){
+					errorMismatch(yylineno); 
+					exit(0);					
+				}
 			}
-#line 1848 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1810 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 451 "parser.ypp" /* yacc.c:1646  */
+#line 412 "parser.ypp" /* yacc.c:1646  */
     { 
 				whileStack.push(1); 
 				if((yyvsp[-1]).type != _BOOL){
@@ -1856,47 +1818,41 @@ yyreduce:
 					exit(0);
 				} 
 			}
-#line 1860 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1822 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 457 "parser.ypp" /* yacc.c:1646  */
+#line 418 "parser.ypp" /* yacc.c:1646  */
     { whileStack.pop(); }
-#line 1866 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1828 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 459 "parser.ypp" /* yacc.c:1646  */
+#line 420 "parser.ypp" /* yacc.c:1646  */
     { 
 				if(whileStack.empty() || !whileStack.top()){ 
 					errorUnexpectedBreak(yylineno); 
 					exit(0);
 				}
 			}
-#line 1877 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1839 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 468 "parser.ypp" /* yacc.c:1646  */
-    {
-			// cout << "$3.type = " << $3.type << endl;
+#line 429 "parser.ypp" /* yacc.c:1646  */
+    {			
 			if((yyvsp[0]).type != _BOOL){
-			// cout << "here" << endl;
+			
 				errorMismatch(yylineno);
 				exit(0);
 			}
 		}
-#line 1890 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1851 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 478 "parser.ypp" /* yacc.c:1646  */
+#line 438 "parser.ypp" /* yacc.c:1646  */
     {
- 			//vector<Var> argList = params;
- 			// cout << $1.name << endl;
- 			// cout << callParams.top().size() << " " << callParams.top()[0].type << " "<< callParams.top()[0].size << endl;
- 			// cout << callParams.top().size() << " " << callParams.top()[1].type << " "<< callParams.top()[1].size << endl;
-
  			type_t type;
 			if(!check_func_exist((yyvsp[-4]).name, callParams.top(), &type)){
 				errorUndefFunc(yylineno, (yyvsp[-4]).name);
@@ -1905,13 +1861,12 @@ yyreduce:
 
 			(yyval).type = (yyvsp[-4]).type = type;
 			callParams.pop();
-
 		}
-#line 1911 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1866 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 495 "parser.ypp" /* yacc.c:1646  */
+#line 449 "parser.ypp" /* yacc.c:1646  */
     {
  			type_t type;			
 			if(!check_func_exist((yyvsp[-2]).name, vector<Var>(),&type)){
@@ -1919,65 +1874,61 @@ yyreduce:
 				exit(0);
 			}
 			(yyval).type = (yyvsp[-2]).type = type;
-
 		}
-#line 1925 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1879 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 505 "parser.ypp" /* yacc.c:1646  */
+#line 459 "parser.ypp" /* yacc.c:1646  */
     { callParams.push(vector<Var>()); }
-#line 1931 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1885 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 509 "parser.ypp" /* yacc.c:1646  */
-    { 
-			// cout << $1.name << " " << $1.type << " " << $1.size<< endl;
+#line 463 "parser.ypp" /* yacc.c:1646  */
+    { 			
 			Var var = {(yyvsp[0]).type, (yyvsp[0]).size};
 			callParams.top().push_back(var); 
 		}
-#line 1941 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1894 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 515 "parser.ypp" /* yacc.c:1646  */
-    { 
-			// cout << $1.name << " " << $1.type << " " << $1.size << endl;
+#line 468 "parser.ypp" /* yacc.c:1646  */
+    { 			
 			Var var = {(yyvsp[-2]).type, (yyvsp[-2]).size}; 
 			callParams.top().push_back(var); 
 		}
-#line 1951 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1903 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 522 "parser.ypp" /* yacc.c:1646  */
+#line 474 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _INT; }
-#line 1957 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1909 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 523 "parser.ypp" /* yacc.c:1646  */
+#line 475 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BYTE; }
-#line 1963 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1915 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 524 "parser.ypp" /* yacc.c:1646  */
+#line 476 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BOOL; }
-#line 1969 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1921 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 527 "parser.ypp" /* yacc.c:1646  */
+#line 479 "parser.ypp" /* yacc.c:1646  */
     { (yyval) = (yyvsp[-1]); }
-#line 1975 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1927 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 529 "parser.ypp" /* yacc.c:1646  */
-    { 
-			// cout << "here1" << endl;
+#line 481 "parser.ypp" /* yacc.c:1646  */
+    { 			
 			type_t type = _NULL;
 			(yyval).size = -1;
 			int size = -1, res, size1;
@@ -1998,69 +1949,23 @@ yyreduce:
 				(yyvsp[-1]).size = size1;
 			}
 			else if(type2 != _NULL){ // ID is var
-				// cout << $1.name << endl;
+				
 				(yyvsp[-1]).type = type2;
 				(yyvsp[-1]).size = -1;
 			}
-			// cout << $1.type << " " << $3.type << endl;
+			
 			if((yyvsp[-1]).type != _BYTE && (yyvsp[-1]).type != _INT){
-				// cout << "here" << endl;
+				
 				errorMismatch(yylineno);
 				exit(0);
 			}
-			// cout << "here2" << endl;
-
 			(yyval).type = (yyvsp[-3]).type;
-			
-
 		}
-#line 2018 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1965 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 568 "parser.ypp" /* yacc.c:1646  */
-    { 
-			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
-			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
-				(yyval).type = _INT;
-			}
-			else {
-				(yyval).type = _BYTE;
-			} (yyval).size = -1;
-		}
-#line 2032 "parser.tab.cpp" /* yacc.c:1646  */
-    break;
-
-  case 50:
-#line 578 "parser.ypp" /* yacc.c:1646  */
-    { 
-			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
-			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
-				(yyval).type = _INT;
-			}
-			else {
-				(yyval).type = _BYTE;
-			} (yyval).size = -1;
-		}
-#line 2046 "parser.tab.cpp" /* yacc.c:1646  */
-    break;
-
-  case 51:
-#line 588 "parser.ypp" /* yacc.c:1646  */
-    { 
-			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
-			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
-				(yyval).type = _INT;
-			}
-			else {
-				(yyval).type = _BYTE;
-			} (yyval).size = -1;
-		}
-#line 2060 "parser.tab.cpp" /* yacc.c:1646  */
-    break;
-
-  case 52:
-#line 598 "parser.ypp" /* yacc.c:1646  */
+#line 515 "parser.ypp" /* yacc.c:1646  */
     { 
 			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
 			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
@@ -2071,13 +1976,57 @@ yyreduce:
 			} 
 			(yyval).size = -1;
 		}
-#line 2075 "parser.tab.cpp" /* yacc.c:1646  */
+#line 1980 "parser.tab.cpp" /* yacc.c:1646  */
+    break;
+
+  case 50:
+#line 526 "parser.ypp" /* yacc.c:1646  */
+    { 
+			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
+			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
+				(yyval).type = _INT;
+			}
+			else {
+				(yyval).type = _BYTE;
+			} 
+			(yyval).size = -1;
+		}
+#line 1995 "parser.tab.cpp" /* yacc.c:1646  */
+    break;
+
+  case 51:
+#line 537 "parser.ypp" /* yacc.c:1646  */
+    { 
+			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
+			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
+				(yyval).type = _INT;
+			}
+			else {
+				(yyval).type = _BYTE;
+			} 
+			(yyval).size = -1;
+		}
+#line 2010 "parser.tab.cpp" /* yacc.c:1646  */
+    break;
+
+  case 52:
+#line 548 "parser.ypp" /* yacc.c:1646  */
+    { 
+			match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); 
+			if((yyvsp[-2]).type == _INT || (yyvsp[0]).type == _INT){
+				(yyval).type = _INT;
+			}
+			else {
+				(yyval).type = _BYTE;
+			} 
+			(yyval).size = -1;
+		}
+#line 2025 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 609 "parser.ypp" /* yacc.c:1646  */
-    { 
-			// cout << " ID " << endl;
+#line 559 "parser.ypp" /* yacc.c:1646  */
+    { 			
 			type_t type1, type2;
 			int size, res;
 			if((res = get_arr_size_and_type((yyvsp[0]).name, &type1, &size)) == -1 && 
@@ -2090,31 +2039,30 @@ yyreduce:
 				(yyvsp[0]).size = size;
 			}
 			else if(type2 != _NULL){ // ID is var
-				// cout << $1.name << endl;
+				
 				(yyvsp[0]).type = type2;
 				(yyvsp[0]).size = -1;
 			}
 			(yyval) = (yyvsp[0]); 
 		}
-#line 2100 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2049 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 629 "parser.ypp" /* yacc.c:1646  */
+#line 578 "parser.ypp" /* yacc.c:1646  */
     { (yyval) = (yyvsp[0]); (yyval).size = -1;}
-#line 2106 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2055 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 630 "parser.ypp" /* yacc.c:1646  */
+#line 579 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _INT; (yyval).val = (yyvsp[0]).val; (yyval).size = -1;}
-#line 2112 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2061 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 632 "parser.ypp" /* yacc.c:1646  */
-    { 
-			// cout << "byte = " << $1.val << endl;
+#line 581 "parser.ypp" /* yacc.c:1646  */
+    { 			
 			if((yyvsp[-1]).val < 0 || (yyvsp[-1]).val >= 256){
 				errorByteTooLarge(yylineno,NumberToString((yyvsp[-1]).val));
 				exit(0);
@@ -2123,133 +2071,126 @@ yyreduce:
 			(yyval).val = (yyvsp[-1]).val;
 			(yyval).size = -1; 
 		}
-#line 2127 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2075 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 642 "parser.ypp" /* yacc.c:1646  */
+#line 590 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _STRING; (yyval).size = -1;}
-#line 2133 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2081 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 643 "parser.ypp" /* yacc.c:1646  */
+#line 591 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2139 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2087 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 644 "parser.ypp" /* yacc.c:1646  */
+#line 592 "parser.ypp" /* yacc.c:1646  */
     { (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2145 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2093 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 646 "parser.ypp" /* yacc.c:1646  */
+#line 594 "parser.ypp" /* yacc.c:1646  */
     { 
 			if((yyvsp[0]).type != _BOOL){
-				// cout << "here" << endl;
+				
 				errorMismatch(yylineno);
 				exit(0);
 			} 
 			(yyval).type = _BOOL;
 			(yyval).size = -1;
 		}
-#line 2159 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2107 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 655 "parser.ypp" /* yacc.c:1646  */
+#line 603 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,false); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2165 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2113 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 656 "parser.ypp" /* yacc.c:1646  */
+#line 604 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,false); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2171 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2119 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 657 "parser.ypp" /* yacc.c:1646  */
+#line 605 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2177 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2125 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 658 "parser.ypp" /* yacc.c:1646  */
+#line 606 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2183 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2131 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 659 "parser.ypp" /* yacc.c:1646  */
+#line 607 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2189 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2137 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 660 "parser.ypp" /* yacc.c:1646  */
+#line 608 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2195 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2143 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 661 "parser.ypp" /* yacc.c:1646  */
+#line 609 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2201 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2149 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 662 "parser.ypp" /* yacc.c:1646  */
+#line 610 "parser.ypp" /* yacc.c:1646  */
     { match_operands((yyvsp[-2]).type,(yyvsp[0]).type,true); (yyval).type = _BOOL; (yyval).size = -1;}
-#line 2207 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2155 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 665 "parser.ypp" /* yacc.c:1646  */
+#line 613 "parser.ypp" /* yacc.c:1646  */
     {
 				Tuple tuple;
 				tuple.parent = &(tables.top());
 				tables.push(tuple);
 				offsets.push(offsets.top());
 			}
-#line 2218 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2166 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 673 "parser.ypp" /* yacc.c:1646  */
+#line 621 "parser.ypp" /* yacc.c:1646  */
     {
 				endScope();
-				// cout << "ok0\n" << endl;
+				
 				Tuple* tuple = &(tables.top());
 				vector<BaseRecord*>* table = &(tuple->table);
-				//cout << tables.top().table.size() << " ****\n" << endl;
+				
 				Record* record;
 				ArrRecord* arrRecord;
 				FuncRecord* funcRecord;
 				for(vector<BaseRecord*>::iterator it = table->begin(); it != table->end(); ++it){
-					// cout << table->size() << " ****\n" << endl;
-
 					arrRecord = dynamic_cast<ArrRecord*>(*it);
 					if(arrRecord != NULL){ // record of array
-						// cout << "ok\n" << endl;
 						printID(arrRecord->name,arrRecord->offset,makeArrayType(types[arrRecord->type],arrRecord->size));
 						continue;
 					}
-					// cout << "ok4\n" << endl;
 
 					record = dynamic_cast<Record*>(*it);
-					if(record != NULL){ // record of variable
-						// cout << "ok1\n" << endl;
+					if(record != NULL){ // record of variable	
 						printID(record->name, record->offset, types[record->type]);
 						continue;
 					}
 
-					// cout << "ok3\n" << endl;
 					funcRecord = dynamic_cast<FuncRecord*>(*it);
 					if(funcRecord != NULL){ // record of function
-						// cout << "ok2\n" << endl;
 						vector<string> tmp;
 						for(vector<Var>::iterator it = funcRecord->args.begin(); it != funcRecord->args.end(); ++it){
 							if(it->size > 0){
@@ -2262,16 +2203,15 @@ yyreduce:
 						printID(funcRecord->name, 0, makeFunctionType(types[funcRecord->type],tmp));
 						continue;
 					}
-					
 				}
 				tables.pop();
 				offsets.pop();
 			}
-#line 2271 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2211 "parser.tab.cpp" /* yacc.c:1646  */
     break;
 
 
-#line 2275 "parser.tab.cpp" /* yacc.c:1646  */
+#line 2215 "parser.tab.cpp" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2499,7 +2439,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 723 "parser.ypp" /* yacc.c:1906  */
+#line 663 "parser.ypp" /* yacc.c:1906  */
 
 
 int main()
@@ -2515,17 +2455,15 @@ int yyerror(const char * message)
 
 /* flag == true checks for numeric types, type == false checks for bool value */
 void match_operands(type_t type1, type_t type2, bool flag){
-	// cout << type1 << " " << type2 << " " << flag << endl;
+	
 	if (flag == true){
 		if((type1 != _INT && type1 != _BYTE) || (type2 != _INT && type2 != _BYTE)){
-			// cout << "here" << endl;
 			errorMismatch(yylineno);
 			exit(0);
 		}
 	}
 	else if (flag == false){
 		if((type1 != _BOOL) || (type2 != _BOOL)){
-			// cout << "here1" << endl;
 			errorMismatch(yylineno);
 			exit(0);
 		}
@@ -2569,7 +2507,6 @@ int get_arr_size_and_type(string name, type_t* type, int* size){
 				continue;
 			}
 			if(arrRecord->name == name){
-				// cout << arrRecord->name  << " " << arrRecord->type << " " << arrRecord->size << endl;
 				*type = (arrRecord->type);
 				*size = (arrRecord->size);
 				return 0;
@@ -2587,13 +2524,10 @@ bool check_func_exist(string name, vector<Var> argList, type_t* retType){
 	vector<string> errorArgs;
 	FuncRecord* funcRecord;
 	BaseRecord* baseRecord;
-	// cout << name << " /////\n" << endl;
 
 	while(tuple != NULL){
 		table = &(tuple->table);
-
-		for(vector<BaseRecord*>::iterator it = tuple->table.begin(); it != tuple->table.end(); ++it){
-			//cout << it->name << "\n" << endl;
+		for(vector<BaseRecord*>::iterator it = tuple->table.begin(); it != tuple->table.end(); ++it){	
 			funcRecord = dynamic_cast<FuncRecord*>(*it);
 			if(funcRecord == NULL){
 				continue;
@@ -2611,13 +2545,11 @@ bool check_func_exist(string name, vector<Var> argList, type_t* retType){
 							errorArgs.push_back(types[tmp->type]);
 
 					}
-					// cout << "here" << endl;
 					errorPrototypeMismatch(yylineno,name,errorArgs);
 					exit(0);
 				}
 
 				for(it1 = argList.begin(),it2 = funcRecord->args.begin(); it1 != argList.end(); ++it1, ++it2){
-					// cout << it1->type << " " << it1->size << " "<< it2->type << " " << it2->size << endl; 
 					if((it2->type == _INT && (it1->type != _INT && it1->type != _BYTE)) ||  
 						(it2->type != _INT && it2->type != it1->type) || it1->size != it2->size){
 						for(tmp = funcRecord->args.begin(); tmp != funcRecord->args.end();++tmp){
@@ -2627,8 +2559,6 @@ bool check_func_exist(string name, vector<Var> argList, type_t* retType){
 							}
 							errorArgs.push_back(types[tmp->type]);
 						}
-						// cout << it1->size << " " << it1->type << endl;
-
 						errorPrototypeMismatch(yylineno,name,errorArgs);
 						exit(0);
 					}
@@ -2641,4 +2571,3 @@ bool check_func_exist(string name, vector<Var> argList, type_t* retType){
 	}
 	return false;
 }
-

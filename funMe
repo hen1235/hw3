@@ -113,5 +113,23 @@ compareFiles "ArrayAccessesItselfIsImpossible" # New 27 May credited to Dor Brau
 compareFiles "ArrayElementIsNotAnArray" # New 27 May credited to Dor Braunstein & Shani Keller
 compareFiles "ReturningAnArrayElement" # New 27 May
 compareFiles "ReturningArray" # New 27 May
+compareFiles "ArrayAndNotArrayShareSameName" # New 29 May
+compareFiles "ArrayIsNotAFunction" # New 29 May
+compareFiles "ArraySizeOneAssignsElementIsWrong" # New 29 May
+compareFiles "ArraySizeOneExpectsArray" # New 29 May
+compareFiles "NotArrayAccessEqualNotArrayAccess" # New 29 May
+compareFiles "NotArrayAccessLeftValue" # New 29 May
+compareFiles "NotArrayAccessParameter" # New 29 May
+compareFiles "NotArrayAccessReturn" # New 29 May
+compareFiles "NotArrayAccessRightValue" # New 29 May
+compareFiles "TwoArraysShareSameName" # New 29 May
+compareFiles "CallByteIsCastToInt" # Last update :)
+compareFiles "MainReturnMain" # Last update :)
+compareFiles "AssignVoidInQuestion" # Last update :)
+compareFiles "True" # Last update :)
+compareFiles "AnswerForEverything" # Last update :)
+compareFiles "PrintingANonString" # Last update :)
+compareFiles "ReturnFromNoWhere" # Last update :)
+compareFiles "BreakNotInWhile" # Last update :)
 
 printSummary

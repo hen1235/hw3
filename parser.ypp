@@ -54,11 +54,6 @@ Program	:
 			BaseRecord* printRecord = new FuncRecord("print",_VOID,printArgs);
 			tuple.table.push_back(printRecord);
 
-			// FuncRecord* funcRecord = dynamic_cast<FuncRecord*>(print.table.back());
-			// if(funcRecord != NULL){
-			// 	// cout << funcRecord->args[0] << " *****\n" << endl;
-			// }
-
 			/* insert printi function to symbol table */
 			vector<Var> printiArgs;
 			Var var2 = {_INT,-1,"a"}; 
@@ -69,14 +64,13 @@ Program	:
 			tuple.parent = NULL;
 			tables.push(tuple);
 			offsets.push(0);
-			// cout << tables.top().table.size() << " $$$$" << endl;
+			
 
 		} Funcs 
 		{ 
-			// cout << "-" << yytext << "-" << endl;
+			
 			string tmp = yytext;
-			// cout << (tmp.compare("}")) << " " << tmp << " " << (tmp.empty()) << endl;
-
+			
 			if((tmp.compare("}") != 0) && (tmp.empty() == 0)){
 				errorSyn(yylineno);
 				exit(0);
@@ -96,49 +90,36 @@ Funcs	: /* epsilon */
 FuncDecl	:  RetType 
 			{ 
 				funcType = $1.type;
-				// cout << $1.type << endl; 
 			} 
 				ID
 			{ 					
-				// cout << "here "<< endl;
 				$3.type = $1.type;	
 
 			} LPAREN Formals RPAREN 
 			{
+				type_t type;
 				if($1.type == _VOID && $3.name == "main" && args.empty()){
 					mainExist = true;
 				}
-				type_t type;
 				if(check_func_exist($3.name, args,NULL)){
 					errorDef(yylineno, $3.name);
 					exit(0);
 				}
+
 				BaseRecord* funcRecord = new FuncRecord($3.name, $1.type, args);
-				
-				//cout << $3.name << " " << $1.type << " " << dynamic_cast<FuncRecord*>(funcRecord)->args[0] << endl;
 				tables.top().table.push_back(funcRecord);
-				// FuncRecord* tmp = dynamic_cast<FuncRecord*>((tables.top().table).back());
-				// cout << tmp->args[0] << " ******\n" << endl;
-				// cout << tables.top().table.size() << " -----" << endl;
-				
-				
 			}	LBRACE OPENSCOPE 
-			{
-				// cout << "here" << endl;
+			{				
 				BaseRecord* record;
-				int size, offset = offsets.top();
+				int size1, res, size, offset = offsets.top();
 				type_t type1, type2;
-				int size1, res;
-				// cout << offsets.top() << endl;
+				
 				for(vector<Var>::iterator it = args.begin(); it != args.end(); ++it){
-					// cout << "size = " << it->size << endl;
-	
 					if((res = get_arr_size_and_type(it->name, &type1, &size1)) == 0 || 
 						(type2 = get_variable_type(it->name)) != _NULL || check_func_exist(it->name,vector<Var>(),NULL)){ // ID var or arr don't exist
 						errorDef(yylineno, it->name);
 						exit(0);
 					}
-
 					if(it->size > 0){
 						offset -= it->size;
 						record = new ArrRecord(it->name,it->type,offset,it->size);
@@ -147,14 +128,13 @@ FuncDecl	:  RetType
 						offset--;
 						record = new Record(it->name,it->type,offset);
 					}
-					// cout << size << endl;
+					
 					tables.top().table.push_back(record);
 				}
 
 				args.clear();
 			} Statments RBRACE CLOSESCOPE { funcType = _NULL; }
 			;
-
 
 RetType	: Type { $$.type = $1.type; }
 		| VOID { $$.type = _VOID; }
@@ -169,8 +149,7 @@ FormalsList	: FormalDecl
 			;
 
 FormalDecl	: Type ID
-			{ 
-				// cout << "here\n" << endl;
+			{ 				
 				type_t type;
 				if(check_func_exist($2.name, vector<Var>(),NULL)){
 					errorDef(yylineno, $2.name);
@@ -178,11 +157,7 @@ FormalDecl	: Type ID
 				}
 				Var var = {$1.type,-1,$2.name};
 
-				args.push_back(var);
-					
-				// cout << "size = " << tables.top().table.size() << "\n" << endl;
-				// cout << tmp->name << " " << tmp->offset << "\n" << endl;
-				// cout << tables.top().table.size() << " ****\n" << endl;
+				args.push_back(var);				
 			}
 			| Type ID LBRACK NUM RBRACK 
 			{ 
@@ -197,7 +172,6 @@ FormalDecl	: Type ID
 				}
 				Var var = {$1.type,$4.val,$2.name};
 				args.push_back(var);
-
 			}
 			| Type ID LBRACK NUM B RBRACK 
 			{ 
@@ -216,8 +190,6 @@ FormalDecl	: Type ID
 				}
 				Var var = {$1.type,$4.val,$2.name};
 				args.push_back(var);
-	 
-
 			}
 			;
 
@@ -227,8 +199,7 @@ Statments	: Statement
 
 Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			| Type ID SC
-			{ 
-				// cout << "here" << endl;
+			{ 				
 				type_t type = get_variable_type($2.name);
 				if(type != _NULL){
 					errorDef(yylineno, $2.name);
@@ -239,20 +210,14 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				BaseRecord* record = new Record($2.name, $1.type, offsets.top());
 				tables.top().table.push_back(record);
 				offsets.top()++;
-
 			}
 			| Type ID ASSIGN Exp SC
-			{ 
-				// cout << "here1" << endl;
+			{ 				
 				type_t type = get_variable_type($2.name);
 				if(type != _NULL){
 					errorDef(yylineno, $2.name);
 					exit(0);
 				}
-				// if($4.size != -1){
-				// 	errorMismatch(yylineno);
-				// 	exit(0);
-				// }
 				else if($1.type == _INT && ($4.type != _INT && $4.type != _BYTE )){
 					errorMismatch(yylineno); 
 					exit(0); 
@@ -269,14 +234,13 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				offsets.top()++;
 			}
 			| Type ID LBRACK NUM RBRACK SC
-			{ 
-				// cout << "here2" << endl;
+			{ 				
 				type_t type;
 				int size, res;
 				res = get_arr_size_and_type($2.name, &type, &size);
 				type = get_variable_type($2.name);
 				if(res == 0 || type != _NULL){
-					// cout << res << " " << type << " " << $4.val << endl;
+					
 					errorDef(yylineno, $2.name);
 					exit(0);
 				}
@@ -286,14 +250,13 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				}
 				$2.type = $1.type;
 				$2.size = $4.val;
-				// cout << $4.val << " ***2***"<< $2.type << endl;
+				
 				BaseRecord* record = new ArrRecord($2.name, $1.type, offsets.top(), $2.size);
 				tables.top().table.push_back(record);
 				offsets.top()+=$2.size;
 			}
 			| Type ID LBRACK NUM B RBRACK SC
-			{ 
-				// cout << "here3" << endl;				
+			{ 				
 				type_t type;
 				int size, res;
 				res = get_arr_size_and_type($2.name, &type, &size);
@@ -312,7 +275,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				}
 				$2.type = $1.type;
 				$2.size = $4.val;
-				// cout << $4.val << " ***1***"<< endl;
+				
 				BaseRecord* record = new ArrRecord($2.name, $1.type, offsets.top(), $2.size);
 				tables.top().table.push_back(record);
 				offsets.top()+=$2.size;
@@ -335,7 +298,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					$1.size = -1;
 				}
 
-				// cout << $1.size << " " << $3.size << endl;
+				
 				if($3.size != $1.size){
 					errorMismatch(yylineno);
 					exit(0);
@@ -354,23 +317,21 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				}
 			}
 			| ID LBRACK Exp RBRACK ASSIGN Exp SC
-			{
-				// cout << "****** array assignment ********" << endl;
-				type_t type;
+			{				
+				type_t type, type1, type2;
 				int size, res;
 				res = get_arr_size_and_type($1.name, &type, &size);
 				if(res == -1){
-					// cout << "here" << endl;
 					errorUndef(yylineno, $1.name);
 					exit(0);
-				}
+				} 
+
 				$1.type = type;
 				$1.size = size;
 				
-				type_t type1, type2;
 				if((res = get_arr_size_and_type($6.name, &type1, &size)) == -1 && 
 					(type2 = get_variable_type($6.name)) == _NULL){ // ID var or arr don't exist
-					// cout << "here1" << endl;					
+					
 					// errorUndef(yylineno, $6.name);
 					// exit(0);
 				}
@@ -382,7 +343,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					$6.type = type2;
 					$6.size = -1;
 				}
-				// cout << $1.size << " " << $6.size << endl;
+				
 				if($6.size != -1){
 					errorMismatch(yylineno); 
 					exit(0); 
@@ -407,9 +368,6 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					errorMismatch(yylineno); 
 					exit(0); 
 				}
-
-
-
 			}
 			| Call SC
 			| RETURN SC 
@@ -424,8 +382,7 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				}
 			}
 			| RETURN Exp SC 
-			{ 
-				// cout << $2.type << " " << funcType << endl;
+			{ 				
 				if(funcType == _NULL){ 
 					errorSyn(yylineno); 
 					exit(0); 
@@ -441,6 +398,10 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 				else if($2.size != -1){
 					errorMismatch(yylineno); 
 					exit(0);
+				}
+				else if(funcType == _VOID){
+					errorMismatch(yylineno); 
+					exit(0);					
 				}
 			}
 			| IF LPAREN IfExp RPAREN OPENSCOPE Statement CLOSESCOPE %prec IFX
@@ -465,10 +426,9 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			;
 
 IfExp 	: Exp 			
-		{
-			// cout << "$3.type = " << $3.type << endl;
+		{			
 			if($1.type != _BOOL){
-			// cout << "here" << endl;
+			
 				errorMismatch(yylineno);
 				exit(0);
 			}
@@ -476,11 +436,6 @@ IfExp 	: Exp
 		;
 Call	: ID LPAREN P ExpList RPAREN
  		{
- 			//vector<Var> argList = params;
- 			// cout << $1.name << endl;
- 			// cout << callParams.top().size() << " " << callParams.top()[0].type << " "<< callParams.top()[0].size << endl;
- 			// cout << callParams.top().size() << " " << callParams.top()[1].type << " "<< callParams.top()[1].size << endl;
-
  			type_t type;
 			if(!check_func_exist($1.name, callParams.top(), &type)){
 				errorUndefFunc(yylineno, $1.name);
@@ -489,7 +444,6 @@ Call	: ID LPAREN P ExpList RPAREN
 
 			$$.type = $1.type = type;
 			callParams.pop();
-
 		}
 		| ID LPAREN RPAREN 
 		{
@@ -499,21 +453,19 @@ Call	: ID LPAREN P ExpList RPAREN
 				exit(0);
 			}
 			$$.type = $1.type = type;
-
 		}
 		;
+
 P 	: { callParams.push(vector<Var>()); }
 	;
 
 ExpList	: Exp 
-		{ 
-			// cout << $1.name << " " << $1.type << " " << $1.size<< endl;
+		{ 			
 			Var var = {$1.type, $1.size};
 			callParams.top().push_back(var); 
 		}
 		| Exp COMMA ExpList 
-		{ 
-			// cout << $1.name << " " << $1.type << " " << $1.size << endl;
+		{ 			
 			Var var = {$1.type, $1.size}; 
 			callParams.top().push_back(var); 
 		}
@@ -526,8 +478,7 @@ Type 	: INT { $$.type = _INT; }
 
 Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 		| ID LBRACK Exp RBRACK	
-		{ 
-			// cout << "here1" << endl;
+		{ 			
 			type_t type = _NULL;
 			$$.size = -1;
 			int size = -1, res, size1;
@@ -548,21 +499,17 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 				$3.size = size1;
 			}
 			else if(type2 != _NULL){ // ID is var
-				// cout << $1.name << endl;
+				
 				$3.type = type2;
 				$3.size = -1;
 			}
-			// cout << $1.type << " " << $3.type << endl;
+			
 			if($3.type != _BYTE && $3.type != _INT){
-				// cout << "here" << endl;
+				
 				errorMismatch(yylineno);
 				exit(0);
 			}
-			// cout << "here2" << endl;
-
 			$$.type = $1.type;
-			
-
 		} 
 		| Exp SUB Exp 
 		{ 
@@ -572,7 +519,8 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 			}
 			else {
 				$$.type = _BYTE;
-			} $$.size = -1;
+			} 
+			$$.size = -1;
 		}
 		| Exp ADD Exp 
 		{ 
@@ -582,7 +530,8 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 			}
 			else {
 				$$.type = _BYTE;
-			} $$.size = -1;
+			} 
+			$$.size = -1;
 		}		
 		| Exp MUL Exp
 		{ 
@@ -592,7 +541,8 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 			}
 			else {
 				$$.type = _BYTE;
-			} $$.size = -1;
+			} 
+			$$.size = -1;
 		}
 		| Exp DIV Exp
 		{ 
@@ -606,8 +556,7 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 			$$.size = -1;
 		}
 		| ID
-		{ 
-			// cout << " ID " << endl;
+		{ 			
 			type_t type1, type2;
 			int size, res;
 			if((res = get_arr_size_and_type($1.name, &type1, &size)) == -1 && 
@@ -620,7 +569,7 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 				$1.size = size;
 			}
 			else if(type2 != _NULL){ // ID is var
-				// cout << $1.name << endl;
+				
 				$1.type = type2;
 				$1.size = -1;
 			}
@@ -629,8 +578,7 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 		| Call { $$ = $1; $$.size = -1;}
 		| NUM { $$.type = _INT; $$.val = $1.val; $$.size = -1;}
 		| NUM B 
-		{ 
-			// cout << "byte = " << $1.val << endl;
+		{ 			
 			if($1.val < 0 || $1.val >= 256){
 				errorByteTooLarge(yylineno,NumberToString($1.val));
 				exit(0);
@@ -645,7 +593,7 @@ Exp 	: LPAREN Exp RPAREN { $$ = $2; }
 		| NOT Exp 
 		{ 
 			if($2.type != _BOOL){
-				// cout << "here" << endl;
+				
 				errorMismatch(yylineno);
 				exit(0);
 			} 
@@ -672,35 +620,28 @@ OPENSCOPE	: {
 
 CLOSESCOPE	: {
 				endScope();
-				// cout << "ok0\n" << endl;
+				
 				Tuple* tuple = &(tables.top());
 				vector<BaseRecord*>* table = &(tuple->table);
-				//cout << tables.top().table.size() << " ****\n" << endl;
+				
 				Record* record;
 				ArrRecord* arrRecord;
 				FuncRecord* funcRecord;
 				for(vector<BaseRecord*>::iterator it = table->begin(); it != table->end(); ++it){
-					// cout << table->size() << " ****\n" << endl;
-
 					arrRecord = dynamic_cast<ArrRecord*>(*it);
 					if(arrRecord != NULL){ // record of array
-						// cout << "ok\n" << endl;
 						printID(arrRecord->name,arrRecord->offset,makeArrayType(types[arrRecord->type],arrRecord->size));
 						continue;
 					}
-					// cout << "ok4\n" << endl;
 
 					record = dynamic_cast<Record*>(*it);
-					if(record != NULL){ // record of variable
-						// cout << "ok1\n" << endl;
+					if(record != NULL){ // record of variable	
 						printID(record->name, record->offset, types[record->type]);
 						continue;
 					}
 
-					// cout << "ok3\n" << endl;
 					funcRecord = dynamic_cast<FuncRecord*>(*it);
 					if(funcRecord != NULL){ // record of function
-						// cout << "ok2\n" << endl;
 						vector<string> tmp;
 						for(vector<Var>::iterator it = funcRecord->args.begin(); it != funcRecord->args.end(); ++it){
 							if(it->size > 0){
@@ -713,7 +654,6 @@ CLOSESCOPE	: {
 						printID(funcRecord->name, 0, makeFunctionType(types[funcRecord->type],tmp));
 						continue;
 					}
-					
 				}
 				tables.pop();
 				offsets.pop();
@@ -735,17 +675,15 @@ int yyerror(const char * message)
 
 /* flag == true checks for numeric types, type == false checks for bool value */
 void match_operands(type_t type1, type_t type2, bool flag){
-	// cout << type1 << " " << type2 << " " << flag << endl;
+	
 	if (flag == true){
 		if((type1 != _INT && type1 != _BYTE) || (type2 != _INT && type2 != _BYTE)){
-			// cout << "here" << endl;
 			errorMismatch(yylineno);
 			exit(0);
 		}
 	}
 	else if (flag == false){
 		if((type1 != _BOOL) || (type2 != _BOOL)){
-			// cout << "here1" << endl;
 			errorMismatch(yylineno);
 			exit(0);
 		}
@@ -789,7 +727,6 @@ int get_arr_size_and_type(string name, type_t* type, int* size){
 				continue;
 			}
 			if(arrRecord->name == name){
-				// cout << arrRecord->name  << " " << arrRecord->type << " " << arrRecord->size << endl;
 				*type = (arrRecord->type);
 				*size = (arrRecord->size);
 				return 0;
@@ -807,13 +744,10 @@ bool check_func_exist(string name, vector<Var> argList, type_t* retType){
 	vector<string> errorArgs;
 	FuncRecord* funcRecord;
 	BaseRecord* baseRecord;
-	// cout << name << " /////\n" << endl;
 
 	while(tuple != NULL){
 		table = &(tuple->table);
-
-		for(vector<BaseRecord*>::iterator it = tuple->table.begin(); it != tuple->table.end(); ++it){
-			//cout << it->name << "\n" << endl;
+		for(vector<BaseRecord*>::iterator it = tuple->table.begin(); it != tuple->table.end(); ++it){	
 			funcRecord = dynamic_cast<FuncRecord*>(*it);
 			if(funcRecord == NULL){
 				continue;
@@ -831,13 +765,11 @@ bool check_func_exist(string name, vector<Var> argList, type_t* retType){
 							errorArgs.push_back(types[tmp->type]);
 
 					}
-					// cout << "here" << endl;
 					errorPrototypeMismatch(yylineno,name,errorArgs);
 					exit(0);
 				}
 
 				for(it1 = argList.begin(),it2 = funcRecord->args.begin(); it1 != argList.end(); ++it1, ++it2){
-					// cout << it1->type << " " << it1->size << " "<< it2->type << " " << it2->size << endl; 
 					if((it2->type == _INT && (it1->type != _INT && it1->type != _BYTE)) ||  
 						(it2->type != _INT && it2->type != it1->type) || it1->size != it2->size){
 						for(tmp = funcRecord->args.begin(); tmp != funcRecord->args.end();++tmp){
@@ -847,8 +779,6 @@ bool check_func_exist(string name, vector<Var> argList, type_t* retType){
 							}
 							errorArgs.push_back(types[tmp->type]);
 						}
-						// cout << it1->size << " " << it1->type << endl;
-
 						errorPrototypeMismatch(yylineno,name,errorArgs);
 						exit(0);
 					}
@@ -861,4 +791,3 @@ bool check_func_exist(string name, vector<Var> argList, type_t* retType){
 	}
 	return false;
 }
-
