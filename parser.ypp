@@ -465,11 +465,12 @@ ExpList	: Exp
 			Var var = {$1.type, $1.size};
 			callParams.top().push_back(var); 
 		}
-		| Exp COMMA ExpList 
+		| Exp
 		{ 			
 			Var var = {$1.type, $1.size}; 
 			callParams.top().push_back(var); 
-		}
+		} COMMA ExpList 
+
 		;
 
 Type 	: INT { $$.type = _INT; }
