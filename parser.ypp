@@ -200,11 +200,15 @@ Statments	: Statement
 Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			| Type ID SC
 			{ 				
-				type_t type = get_variable_type($2.name);
-				if(type != _NULL){
+				type_t type;
+				int size, res;
+				res = get_arr_size_and_type($2.name, &type, &size);
+				type = get_variable_type($2.name);
+				if(res == 0 || type != _NULL){
 					errorDef(yylineno, $2.name);
 					exit(0);
 				}
+
 				$2.type = $1.type;
 				$2.size = -1;
 				BaseRecord* record = new Record($2.name, $1.type, offsets.top());
