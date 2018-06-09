@@ -208,6 +208,10 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 					errorDef(yylineno, $2.name);
 					exit(0);
 				}
+				if(check_func_exist($2.name, vector<Var>(),NULL)){
+					errorDef(yylineno, $2.name);
+					exit(0);
+				}
 
 				$2.type = $1.type;
 				$2.size = -1;
@@ -218,6 +222,10 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			| Type ID ASSIGN Exp SC
 			{ 				
 				type_t type = get_variable_type($2.name);
+				if(check_func_exist($2.name, vector<Var>(),NULL)){
+					errorDef(yylineno, $2.name);
+					exit(0);
+				}
 				if(type != _NULL){
 					errorDef(yylineno, $2.name);
 					exit(0);
@@ -241,6 +249,10 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			{ 				
 				type_t type;
 				int size, res;
+				if(check_func_exist($2.name, vector<Var>(),NULL)){
+					errorDef(yylineno, $2.name);
+					exit(0);
+				}
 				res = get_arr_size_and_type($2.name, &type, &size);
 				type = get_variable_type($2.name);
 				if(res == 0 || type != _NULL){
@@ -263,6 +275,10 @@ Statement 	: LBRACE OPENSCOPE Statments CLOSESCOPE RBRACE
 			{ 				
 				type_t type;
 				int size, res;
+				if(check_func_exist($2.name, vector<Var>(),NULL)){
+					errorDef(yylineno, $2.name);
+					exit(0);
+				}
 				res = get_arr_size_and_type($2.name, &type, &size);
 				type = get_variable_type($2.name);
 				if(res == 0 || type != _NULL){
